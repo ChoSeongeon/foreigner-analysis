@@ -192,11 +192,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
 # ---------------------------------------------------------
-# 3. 미국 vs 중국 콘텐츠 소비 비중 비교
+# 3. 미국/중국 선호 콘텐츠 (Top 3)
 # ---------------------------------------------------------
-st.divider()
 st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
+
 sql3 = """
 WITH Avg_Content_Consumption AS (
     SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비중
@@ -277,7 +280,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 # ---------------------------------------------------------
 # 4 & 5. 소비 분야 순위 (강원 vs 전국)
