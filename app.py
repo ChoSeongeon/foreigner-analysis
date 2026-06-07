@@ -401,9 +401,6 @@ plt.rcParams['axes.unicode_minus'] = False
     {"연도": "2024", "카테고리": "식음료비", "비율": 258.6}
 ])
 
-# 대타이틀 출력
-st.markdown('<h2 style="font-size:24px; font-weight:700; margin-bottom:20px;">4 & 5. 외국인 신용카드 소비 트렌드</h2>', unsafe_allow_html=True)
-
 # 강원도 / 전국 2열 레이아웃 설정
 col_left, col_right = st.columns(2)
 
@@ -441,39 +438,36 @@ with col_left:
     
     # [추가] 강원도 사용 SQL 토글 박스 배치
     with st.expander("💻 사용한 SQL"):
-        st.code("""WITH Yearly_Category_Base AS (
+        st.code(WITH Ranked_Shopping_Subcategory AS (
     SELECT 
         연도,
-        카테고리_대분류,
-        MAX(카테고리_대분류_소비_비율) AS 대분류_소비_비율
-    FROM 
-        강원도소비유형합본
-    GROUP BY 
-        연도, 
-        카테고리_대분류
-),
-Ranked_Category AS (
-    SELECT 
-        연도,
-        카테고리_대분류,
-        대분류_소비_비율,
-        ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 대분류_소비_비율 DESC) AS 순위
-    FROM 
-        Yearly_Category_Base
+        "카테고리 대분류" AS 대분류,
+        "카테고리 중분류" AS 중분류,
+        "카테고리 중분류 소비 비율" AS 중분류_소비_비율,
+        
+       
+        ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY "카테고리 중분류 소비 비율" DESC) AS 순위
+    FROM 강원도소비유형합본
+    WHERE 
+        "카테고리 대분류" = '쇼핑업'    
+        AND 연도 IN (2023, 2024)       
 )
+
+
 SELECT 
     연도,
     순위,
-    카테고리_대분류,
-    CONCAT(ROUND(대분류_소비_비율, 1), '%') AS 대분류_소비_비율
+    대분류,
+    중분류,
+    
+    CAST(ROUND(중분류_소비_비율, 1) AS VARCHAR) || '%' AS 중분류_소비_비율
 FROM 
-    Ranked_Category
+    Ranked_Shopping_Subcategory 
 WHERE 
     순위 <= 3
 ORDER BY 
     연도 ASC, 
     순위 ASC;""", language="sql")
-
 
 # --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
 with col_right:
