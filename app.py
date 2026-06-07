@@ -235,7 +235,7 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (미국 파트 위아래 적층 레이아웃)
+    # 정밀 시각화 엔진 (잘림 현상 교정 완료)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
@@ -256,8 +256,35 @@ with col3_1:
     ax_us = axes[0]
     ax_us.set_facecolor('white')
     
-    # [해결] 1위 뷰티를 가장 상단에 큼직하게 배치
-    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='
+    # 1위 뷰티를 가장 상단에 큼직하게 배치
+    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='center')
+    
+    # [수정 완료] 문자열 잘림 현상을 해결하고 웹툰과 패션을 위아래로 깔끔하게 떨어뜨렸습니다.
+    ax_us.text(0.5, 0.44, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.5, 0.15, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    
+    ax_us.axis('off')
+    ax_us.set_xlim(0.05, 0.95)
+    ax_us.set_ylim(0.05, 0.95)
+    
+    # 2. 중국 데이터 강제 매핑 (순위 및 명도 차이 유지)
+    ax_cn = axes[1]
+    ax_cn.set_facecolor('white')
+    
+    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='black', color='#8b0000', ha='center', va='center')
+    ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='black', color='#e03a3a', ha='center', va='center')
+    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='black', color='#f39292', ha='center', va='center')
+    
+    ax_cn.axis('off')
+    ax_cn.set_xlim(0.05, 0.95)
+    ax_cn.set_ylim(0.05, 0.95)
+    
+    # 주변 여백 압축
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0.02, left=0.00, right=1.00, top=1.00, bottom=0.00)
+    
+    # 최종 출력
+    st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
     st.subheader("💻 사용한 SQL")
