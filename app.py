@@ -235,7 +235,7 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (글자 크기 한계치 돌파 극대화 모드)
+    # 정밀 시각화 엔진 (단어 간격 완전 분리 버전)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
@@ -249,43 +249,42 @@ with col3_1:
     else:  # 리눅스/스트림릿 클라우드 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
-    # 도화지 크기를 가로세로 완벽한 직사각형 비율(7, 4.2)로 잡고 내부 글자를 훨씬 더 키워 여백을 삭제합니다.
+    # 도화지 크기 설정
     fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
     
-    # 1. 미국 데이터 수동 강제 매핑 (여백 없이 터질 듯이 배치)
+    # 1. 미국 데이터 강제 매핑 (웹툰과 패션 간격 넓게 확보)
     ax_us = axes[0]
     ax_us.set_facecolor('white')
     
-    # [크기 조정] 폰트 크기를 최대 110/82로 파격 상향하여 2번째 사진 크기 재현
+    # 상단 1위 뷰티
     ax_us.text(0.5, 0.68, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='center')
-    ax_us.text(0.22, 0.22, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.78, 0.22, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    
+    # [해결] '웹툰패션'으로 붙어 읽히지 않도록 가로 좌측 좌표를 0.18로 밀고, 우측 좌표를 0.82로 벌렸습니다.
+    ax_us.text(0.18, 0.22, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.82, 0.22, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
     
     ax_us.axis('off')
-    # 내부 가상 경계 면적을 타이트하게 좁혀서 글자가 무조건 크게 확대되도록 유도
-    ax_us.set_xlim(0.05, 0.95)
+    # 경계 면적을 조율하여 넓어진 간격이 그대로 유지되도록 설정
+    ax_us.set_xlim(0.02, 0.98)
     ax_us.set_ylim(0.05, 0.95)
     
-    # 2. 중국 데이터 수동 강제 매핑 (순위 명확화 및 대형화)
+    # 2. 중국 데이터 강제 매핑 (기존 완벽한 비율 유지)
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
     
-    # [크기 조정] 1위 뷰티를 도화지 상단에 꽉 차게 115 크기로 배치
     ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='black', color='#8b0000', ha='center', va='center')
-    # 2위 패션(39%)은 1위보다 미세하게 작은 102 크기로 꽉 채움
     ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='black', color='#e03a3a', ha='center', va='center')
-    # 3위 드라마(28%)도 2번째 사진만큼 존재감 넘치게 65 크기로 상향
     ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='black', color='#f39292', ha='center', va='center')
     
     ax_cn.axis('off')
     ax_cn.set_xlim(0.05, 0.95)
     ax_cn.set_ylim(0.05, 0.95)
     
-    # 플롯 주변의 흰색 패딩/마진을 제로에 가깝게 붙여서 알맹이 글자들만 꽉 차게 조율
+    # 주변 마진 최소화
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.02, left=0.00, right=1.00, top=1.00, bottom=0.00)
     
-    # 렌더링 출력
+    # 최종 출력
     st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
