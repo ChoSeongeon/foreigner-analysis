@@ -50,14 +50,15 @@ with col1_2:
 
 # 인사이트 파트 위에 '참고' 파트를 새로 추가했습니다.
 # 필요에 따라 안에 들어갈 내용을 수정하여 사용하세요.
+# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
         padding: 18px 22px; 
         border-radius: 0.5rem; 
-        margin-top: 1rem;
-        margin-bottom: 1rem;
+        margin-top: 10px;
+        margin-bottom: 10px;
         border: none;
     ">
         <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
@@ -69,18 +70,19 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# 참고 밑 가설 설정 파트 추가
+
+# 2. 가설 설정 파트 (가운데로 이동, 위아래 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #f1f9f5; 
         padding: 18px 22px; 
         border-radius: 0.5rem; 
-        margin-top: 1rem;
-        margin-bottom: 1rem;
+        margin-top: 10px;
+        margin-bottom: 10px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">❓가설 설정</span><br>
+        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">❓ 가설 설정</span><br>
         <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
             •&nbsp;&nbsp;외국인 방문객의 평균 객단가는 외지인 방문객의 평균 객단가보다 높을 것이다.
         </div>
@@ -88,12 +90,32 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# 인사이트 파트 내용 업데이트 및 첫 문장 볼드체 적용
-st.info("""**💡 인사이트**
-- **분석 결과, 외국인 방문객의 평균 객단가는 외지인 방문객보다 낮게 나타났다.**
-- 원인 분석 결과 필리핀(9.3%), 베트남(8.3%) 방문객 비중이 높게 나타났으며, 이들 중 일부는 관광보다 취업·근로 목적 방문 비중이 높은 것으로 추정된다.
-- 따라서 외국인 방문객 전체를 관광객으로 간주하기보다 방문 목적을 고려한 세분화 분석이 필요하다.""")
 
+# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 1.9; margin-top: 6px;">
+            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+                •&nbsp;&nbsp;분석 결과, 외국인 방문객의 평균 객단가는 외지인 방문객보다 낮게 나타났다.
+            </span><br>
+            <span style="color: #212529; font-size: 14px;">
+                •&nbsp;&nbsp;원인 분석 결과 필리핀(9.3%), 베트남(8.3%) 방문객 비중이 높게 나타났으며, 이들 중 일부는 관광보다 취업·근로 목적 방문 비중이 높은 것으로 추정된다.<br>
+                •&nbsp;&nbsp;따라서 외국인 방문객 전체를 관광객으로 간주하기보다 방문 목적을 고려한 세분화 분석이 필요하다.
+            </span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------------------------------------------------
 # 2. 국가별 평균 방문자 비율+소비율 상위 3개국
