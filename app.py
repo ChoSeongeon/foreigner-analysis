@@ -54,14 +54,14 @@ st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 15px; 
-        border-radius: 5px; 
-        border-left: 5px solid #6c757d;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        padding: 16px 20px; 
+        border-radius: 0.5rem; 
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: none;
     ">
         <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <span style="color: #212529; line-height: 1.6;">
+        <span style="color: #212529; line-height: 1.8; font-size: 14px;">
             • 본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.<br>
             • 외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.
         </span>
