@@ -235,7 +235,7 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (단어 간격 완전 분리 버전)
+    # 정밀 시각화 엔진 (미국 파트 위아래 적층 레이아웃)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
@@ -249,43 +249,15 @@ with col3_1:
     else:  # 리눅스/스트림릿 클라우드 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
-    # 도화지 크기 설정
+    # 도화지 크기 설정 (7, 4.2 규격 유지)
     fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
     
-    # 1. 미국 데이터 강제 매핑 (웹툰과 패션 간격 넓게 확보)
+    # 1. 미국 데이터 강제 매핑 (하위 단어 세로 적층 구조)
     ax_us = axes[0]
     ax_us.set_facecolor('white')
     
-    # 상단 1위 뷰티
-    ax_us.text(0.5, 0.68, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='center')
-    
-    # [해결] '웹툰패션'으로 붙어 읽히지 않도록 가로 좌측 좌표를 0.18로 밀고, 우측 좌표를 0.82로 벌렸습니다.
-    ax_us.text(0.18, 0.22, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.82, 0.22, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
-    
-    ax_us.axis('off')
-    # 경계 면적을 조율하여 넓어진 간격이 그대로 유지되도록 설정
-    ax_us.set_xlim(0.02, 0.98)
-    ax_us.set_ylim(0.05, 0.95)
-    
-    # 2. 중국 데이터 강제 매핑 (기존 완벽한 비율 유지)
-    ax_cn = axes[1]
-    ax_cn.set_facecolor('white')
-    
-    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='black', color='#8b0000', ha='center', va='center')
-    ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='black', color='#e03a3a', ha='center', va='center')
-    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='black', color='#f39292', ha='center', va='center')
-    
-    ax_cn.axis('off')
-    ax_cn.set_xlim(0.05, 0.95)
-    ax_cn.set_ylim(0.05, 0.95)
-    
-    # 주변 마진 최소화
-    plt.tight_layout()
-    plt.subplots_adjust(wspace=0.02, left=0.00, right=1.00, top=1.00, bottom=0.00)
-    
-    # 최종 출력
-    st.pyplot(fig)
+    # [해결] 1위 뷰티를 가장 상단에 큼직하게 배치
+    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
     st.subheader("💻 사용한 SQL")
