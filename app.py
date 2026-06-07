@@ -121,21 +121,18 @@ st.markdown(
 # 2. 국가별 평균 방문자 비율+소비율 상위 3개국
 # ---------------------------------------------------------
 st.divider()
-st.header("2. 3개년 통합 우수 국가 (방문+소비)")
+st.header("2. 강원도 방문·소비 통합 기여도 상위 국가")
 sql2 = """
 WITH Avg_Visit AS (
     SELECT 국가, AVG(방문자_비율) AS 평균_방문_비율 FROM 외국인방문합본
-    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가
-), 
+    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가), 
 Avg_Consumption AS (
     SELECT 국가, AVG(소비_비율) AS 평균_소비_비율 FROM 외국인소비합본
-    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가
-),
+    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가),
 Combined_Metrics AS (
     SELECT V.국가, V.평균_방문_비율, C.평균_소비_비율, (V.평균_방문_비율 + C.평균_소비_비율) AS 총_합산_점수,
     ROW_NUMBER() OVER (ORDER BY (V.평균_방문_비율 + C.평균_소비_비율) DESC) AS 통합_순위
-    FROM Avg_Visit V INNER JOIN Avg_Consumption C ON V.국가 = C.국가
-)
+    FROM Avg_Visit V INNER JOIN Avg_Consumption C ON V.국가 = C.국가)
 SELECT 통합_순위, 국가, ROUND(평균_방문비율_3개년, 2) as 평균_방문비율_3개년, ROUND(평균_소비비율_3개년, 2) as 평균_소비비율_3개년, ROUND(총_합산_점수, 2) as 총_합산_점수 
 FROM (SELECT 통합_순위, 국가, 평균_방문_비율 as 평균_방문비율_3개년, 평균_소비_비율 as 평균_소비비율_3개년, 총_합산_점수 FROM Combined_Metrics WHERE 통합_순위 <= 3);
 """
@@ -143,14 +140,57 @@ df2 = run_query(sql2)
 
 col2_1, col2_2 = st.columns([2, 1])
 with col2_1:
-    fig2 = px.bar(df2, x='국가', y='총_합산_점수', text='총_합산_점수', color='국가', title="상위 3개국 통합 점수")
+    fig2 = px.bar(df2, x='국가', y='총_합산_점수', text='총_합산_점수', color='국가', title="강원도 방문 및 소비 비중 상위 국가")
     st.plotly_chart(fig2, use_container_width=True)
 with col2_2:
     st.subheader("💻 사용한 SQL")
     st.code(sql2, language='sql')
 
-st.info("**💡 인사이트**\n- 방문자 수와 소비액을 합산했을 때 가장 영향력이 큰 국가를 한눈에 파악할 수 있습니다.\n- 이 국가들을 대상으로 한 집중 마케팅(언어 맞춤형 안내 등)이 효율적일 것입니다.")
+st.markdown(
+    """
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;본 분석은 2023년~2025년 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;국가별 평균 방문 비율과 평균 소비금액 비율을 합산하여 통합 점수를 산출하였습니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
+# 2. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 1.9; margin-top: 6px;">
+            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+                •&nbsp;&nbsp;미국, 싱가포르, 중국은 방문 비율과 소비 비율 모두 높은 국가로 나타났다.
+            </span><br>
+            <span style="color: #212529; font-size: 14px;">
+                •&nbsp;&nbsp;해당 국가 관광객은 강원도 관광산업에 대한 기여도가 높은 핵심 수요층으로 판단된다.<br>
+                •&nbsp;&nbsp;향후 국가별 특성을 반영한 맞춤형 관광 콘텐츠와 마케팅 전략 수립이 필요하다.
+            </span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------------------------------------------------
 # 3. 미국 vs 중국 콘텐츠 소비 비중 비교
