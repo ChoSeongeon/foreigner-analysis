@@ -233,7 +233,7 @@ with col3_1:
         urllib.request.urlretrieve(font_url, font_path)
     # -----------------------------------------------------------------
     
-    # [해결] 데이터프레임 오류 원천 차단! 질문자님이 주신 정확한 SQL 결과값을 직접 딕셔너리로 주입
+    # 전달해주신 SQL 결과 수치 100% 반영
     us_words_exact = {
         '뷰티': 28.33,
         '웹툰': 27.33,
@@ -246,10 +246,10 @@ with col3_1:
         '드라마': 28.0
     }
     
-    # [해결] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 똑같이 일치하도록 구현 (왼쪽 정렬, 색상, 크기)
+    # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭 (왼쪽 정렬, 스타일 고정)
     st.markdown(
         """
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px; margin-bottom: 5px; padding-left: 2px;">
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 8px; padding-left: 2px;">
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px;">미국 선호 콘텐츠</div>
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px; padding-left: 15px;">중국 선호 콘텐츠</div>
         </div>
@@ -257,44 +257,45 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [해결] 2번째 사진처럼 꽉 차고 거대한 크기를 만들기 위해 개별 해상도를 대폭 확장 (가로 800, 세로 500)
-    # 단어 간 여백(margin=1)을 최소화하여 글자 스케일을 화면 가득 채움
+    # [해결] SQL 박스 크기와 밸런스를 맞추기 위해 해상도를 가로형(900x450)으로 대폭 확장
+    # max_font_size를 260까지 늘려 도화지에 글자가 꽉 차게 욱여넣도록 설정
     
-    # 1. 미국 워드클라우드 개별 이미지 생성
+    # 1. 미국 워드클라우드 개별 생성
     wc_us = WordCloud(
-        width=800, height=500, 
+        width=900, height=450, 
         background_color='white', 
         font_path=font_path, 
         colormap='Blues',
         prefer_horizontal=1.0,
-        min_font_size=50,       # 꼴찌 단어도 엄청 크게 나오도록 하한선 대폭 상향
-        max_font_size=160,      # 1위 단어가 화면을 지배하도록 상한선 확장
-        margin=1
+        min_font_size=90,       # 단어 개수가 적으므로 최소 크기를 극단적으로 끌어올려 공간 채움
+        max_font_size=260,      # 글자가 큼직하게 꽉 차도록 확대
+        margin=0,               # 내부 여백 제로화
+        relative_scaling=0.3    # 수치 비중 차이 대비 글자 크기가 급격하게 작아지는 현상 방지
     ).generate_from_frequencies(us_words_exact)
     
-    # 2. 중국 워드클라우드 개별 이미지 생성
+    # 2. 중국 워드클라우드 개별 생성
     wc_cn = WordCloud(
-        width=800, height=500, 
+        width=900, height=450, 
         background_color='white', 
         font_path=font_path, 
         colormap='Reds',
         prefer_horizontal=1.0,
-        min_font_size=50,       
-        max_font_size=160,
-        margin=1
+        min_font_size=90,       
+        max_font_size=260,
+        margin=0,
+        relative_scaling=0.3
     ).generate_from_frequencies(cn_words_exact)
     
-    # [해결] matplotlib을 거치지 않고 워드클라우드 이미지 배열을 PIL 이미지로 변환하여 축소 현상 해결
+    # 이미지 오브젝트화
     img_us = wc_us.to_image()
     img_cn = wc_cn.to_image()
     
-    # Streamlit의 컬럼 기능을 활용하여 화면에 양옆으로 거대하게 배치 (use_container_width=True로 최대 확장)
+    # [해결] 간격을 밀착시켜서 우측 SQL 박스와 수평 너비가 일치하도록 가로 컬럼 레이아웃 전개
     wc_col1, wc_col2 = st.columns(2)
     with wc_col1:
         st.image(img_us, use_container_width=True)
     with wc_col2:
         st.image(img_cn, use_container_width=True)
-
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
     st.subheader("💻 사용한 SQL")
