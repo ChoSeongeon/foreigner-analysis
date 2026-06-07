@@ -43,7 +43,7 @@ df1 = run_query(sql1)
 col1_1, col1_2 = st.columns([1, 1])
 with col1_1:
     st.subheader("📊 객단가 비교")
-    st.table(df1.style.format("{:,.0f}"))
+    st.table(df1.style.format("{:,.0f} (원)"))
 with col1_2:
     st.subheader("💻 사용한 SQL")
     st.code(sql1, language='sql')
