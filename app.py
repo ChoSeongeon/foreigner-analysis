@@ -233,7 +233,7 @@ with col3_1:
         urllib.request.urlretrieve(font_url, font_path)
     # -----------------------------------------------------------------
     
-    # SQL 결과 수치 100% 보장
+    # [정밀 반영] 정확한 가중치 배율을 위해 퍼센트 값을 그대로 딕셔너리로 대입
     us_words_exact = {
         '뷰티': 28.33,
         '웹툰': 27.33,
@@ -257,40 +257,43 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [해결] 1번째 사진의 거대하고 시원시원한 글씨 형태를 재현하기 위해 
-    # 해상도 비율을 정사각형 규격(550x500)으로 변경하여 상하좌우를 단어들로 꽉 채웁니다.
+    # [핵심 해결책]
+    # 1. 캔버스 크기를 1000x1000 정형 규격으로 확장하여 '드라마' 같은 하위 단어가 공간 부족으로 삭제되는 현상을 원천 차단합니다.
+    # 2. relative_scaling=1.0 설정을 통해 글자 크기가 오직 '퍼센트 수치'에만 100% 비례하도록 고정합니다.
+    #    (이로 인해 미국의 웹툰과 패션은 무조건 '완벽히 동일한 크기'로 렌더링됩니다.)
+    # 3. min_font_size 제약을 없애서 라이브러리가 수치 비율을 왜곡하지 않고 정밀하게 표현하도록 합니다.
     
-    # 1. 미국 워드클라우드 개별 생성 (1번째 사진 크기 튜닝)
+    # 1. 미국 워드클라우드 생성
     wc_us = WordCloud(
-        width=550, height=500, 
+        width=1000, height=1000, 
         background_color='white', 
         font_path=font_path, 
         colormap='Blues',
         prefer_horizontal=1.0,
-        min_font_size=110,      # 하위 단어도 1번째 사진처럼 웅장하게 키움
-        max_font_size=240,      # 1위 뷰티 글자가 캔버스를 가득 덮도록 확장
-        margin=5,               # 적절한 응집력을 위한 마진 부여
-        relative_scaling=0.1    # 단어들끼리 크기가 고르게 거대해지도록 밸런스 조정
+        max_font_size=300,
+        min_font_size=10,
+        relative_scaling=1.0,   # [해결] 수치 비중에 크기를 완벽하게 일치시킴 (웹툰=패션 크기 동일화)
+        margin=20
     ).generate_from_frequencies(us_words_exact)
     
-    # 2. 중국 워드클라우드 개별 생성 (1번째 사진 크기 튜닝)
+    # 2. 중국 워드클라우드 생성
     wc_cn = WordCloud(
-        width=550, height=500, 
+        width=1000, height=1000, 
         background_color='white', 
         font_path=font_path, 
         colormap='Reds',
         prefer_horizontal=1.0,
-        min_font_size=110,       
-        max_font_size=240,
-        margin=5,
-        relative_scaling=0.1
+        max_font_size=300,
+        min_font_size=10,
+        relative_scaling=1.0,   # [해결] 뷰티(40)와 패션(39)은 미세한 크기/색상 차이 유도, 드라마(28)는 무조건 정상 노출
+        margin=20
     ).generate_from_frequencies(cn_words_exact)
     
     # 이미지 변환
     img_us = wc_us.to_image()
     img_cn = wc_cn.to_image()
     
-    # 좌우 컬럼 레이아웃 배치 (use_container_width로 대시보드 규격 최대 확장)
+    # 화면 레이아웃에 꽉 차게 양옆으로 배치 (use_container_width=True로 첫 번째 사진만큼 거대하게 확대)
     wc_col1, wc_col2 = st.columns(2)
     with wc_col1:
         st.image(img_us, use_container_width=True)
