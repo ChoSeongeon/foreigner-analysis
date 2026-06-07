@@ -222,42 +222,40 @@ col3_1, col3_2 = st.columns([1, 1])
 with col3_1:
     st.subheader("📊 시각화 (워드 클라우드)")
     
-    # 국가별 데이터 필터링
+    # 데이터 및 단어 딕셔너리 추출
     us_data = df3[df3['국가'] == '미국']
     cn_data = df3[df3['국가'] == '중국']
     
-    # 워드클라우드 생성을 위한 딕셔너리 변환 {콘텐츠종류: 소비비중}
     us_words = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
     cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
     
-    # 워드클라우드 스타일 설정 (한글 깨짐 방지를 위해 나눔고딕 등 시스템 폰트 경로 지정 필요)
-import os
-
-font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-
-if not os.path.exists(font_path):
-    font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+    # OS 환경별 폰트 체크
+    import os
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
     
-if not os.path.exists(font_path):
-    font_path = "malgun"
-
-fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-
-# 3. 미국 워드클라우드
-if us_words:
+    if not os.path.exists(font_path):
+        font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+        
+    if not os.path.exists(font_path):
+        font_path = "malgun"
+        
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    
+    # 1. 미국 워드클라우드 생성 및 설정
+    if us_words:
         wc_us = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Blues').generate_from_frequencies(us_words)
         axes[0].imshow(wc_us, interpolation='bilinear')
         axes[0].set_title("미국 선호 콘텐츠", fontsize=14, pad=10)
-    axes[0].axis('off')
+    axes[0].axis('off')  # <- if문과 같은 깊이(스페이스바 4칸)로 정렬!
     
-    # 4. 중국 워드클라우드
+    # 2. 중국 워드클라우드 생성 및 설정
     if cn_words:
         wc_cn = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Reds').generate_from_frequencies(cn_words)
         axes[1].imshow(wc_cn, interpolation='bilinear')
         axes[1].set_title("중국 선호 콘텐츠", fontsize=14, pad=10)
-    axes[1].axis('off')
+    axes[1].axis('off')  # <- if문과 같은 깊이(스페이스바 4칸)로 정렬!
     
-    # 5. 그래프 출력
+    # 그래프 플롯 출력
     st.pyplot(fig)
 
 with col3_2:
