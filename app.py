@@ -213,15 +213,70 @@ FROM Ranked_Content WHERE 콘텐츠_순위 <= 3;
 """
 df3 = run_query(sql3)
 
-col3_1, col3_2 = st.columns(2)
-for i, country in enumerate(['미국', '중국']):
-    with [col3_1, col3_2][i]:
-        country_df = df3[df3['국가'] == country]
-        fig = px.bar(country_df, x='콘텐츠종류', y='평균_소비비중_퍼센트', title=f"{country} 선호 콘텐츠", color_discrete_sequence=['#FF4B4B' if country=='중국' else '#1C83E1'])
-        st.plotly_chart(fig, use_container_width=True)
+# 1. 시각화 영역과 SQL 영역 분할
+col3_1, col3_2 = st.columns([1, 1])
 
-st.code(sql3, language='sql')
-st.info("**💡 인사이트**\n- 미국 관광객은 드라마/영화 등 엔터테인먼트에, 중국 관광객은 쇼핑이나 특정 앱 서비스 비중이 높을 수 있습니다.\n- 국가별로 관심 있는 콘텐츠가 다르므로 타겟팅된 홍보 자료 제작이 필요합니다.")
+with col3_1:
+    st.subheader("📊 시각화 (워드 클라우드)")
+    
+    # 국가별 데이터 필터링
+    us_data = df3[df3['국가'] == '미국']
+    cn_data = df3[df3['국가'] == '중국']
+    
+    # 워드클라우드 생성을 위한 딕셔너리 변환 {콘텐츠종류: 소비비중}
+    us_words = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
+    cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
+    
+    # 워드클라우드 스타일 설정 (한글 깨짐 방지를 위해 나눔고딕 등 시스템 폰트 경로 지정 필요)
+    # Windows: "malgun.ttf", Mac: "AppleGothic.ttf" / 폰트가 없다면 기본 폰트로 렌더링되나 한글은 지정 필수
+    font_path = "AppleGothic"  # 혹은 "malgun" (운영체제에 맞게 설정 가능)
+    
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    
+    # 미국 워드클라우드 (Blue 계열)
+    if us_words:
+        wc_us = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Blues').generate_from_frequencies(us_words)
+        axes[0].imshow(wc_us, interpolation='bilinear')
+        axes[0].set_title("미국 선호 콘텐츠", fontsize=14, pad=10)
+    axes[0].axis('off')
+    
+    # 중국 워드클라우드 (Reds 계열)
+    if cn_words:
+        wc_cn = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Reds').generate_from_frequencies(cn_words)
+        axes[1].imshow(wc_cn, interpolation='bilinear')
+        axes[1].set_title("중국 선호 콘텐츠", fontsize=14, pad=10)
+    axes[1].axis('off')
+    
+    # Streamlit에 그래프 플롯 리포팅
+    st.pyplot(fig)
+
+with col3_2:
+    # 요청하신 '💻 사용한 SQL' 대제목 추가
+    st.subheader("💻 사용한 SQL")
+    st.code(sql3, language='sql')
+
+# ---------------------------------------------------------
+# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 1.9; margin-top: 6px; color: #212529; font-size: 14px;">
+            •&nbsp;&nbsp;미국 관광객은 드라마/영화 등 엔터테인먼트에, 중국 관광객은 쇼핑이나 특정 앱 서비스 비중이 높을 수 있습니다.<br>
+            •&nbsp;&nbsp;국가별로 관심 있는 콘텐츠가 다르므로 타겟팅된 홍보 자료 제작이 필요합니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # ---------------------------------------------------------
