@@ -243,21 +243,21 @@ if not os.path.exists(font_path):
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
-# 미국 워드클라우드 (Blue 계열)
-    if us_words:
+# 3. 미국 워드클라우드
+if us_words:
         wc_us = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Blues').generate_from_frequencies(us_words)
         axes[0].imshow(wc_us, interpolation='bilinear')
         axes[0].set_title("미국 선호 콘텐츠", fontsize=14, pad=10)
     axes[0].axis('off')
     
-    # 중국 워드클라우드 (Reds 계열)
+    # 4. 중국 워드클라우드
     if cn_words:
         wc_cn = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Reds').generate_from_frequencies(cn_words)
         axes[1].imshow(wc_cn, interpolation='bilinear')
         axes[1].set_title("중국 선호 콘텐츠", fontsize=14, pad=10)
     axes[1].axis('off')
     
-    # Streamlit에 그래프 플롯 리포팅
+    # 5. 그래프 출력
     st.pyplot(fig)
 
 with col3_2:
