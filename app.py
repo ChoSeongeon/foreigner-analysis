@@ -220,7 +220,7 @@ df3 = run_query(sql3)
 col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
-    st.subheader("📊 시각화 (워드 클라우드)")
+    # [수정] st.subheader("📊 시각화 (워드 클라우드)") 부분을 삭제하여 대제목을 제외했습니다.
     
     # 데이터 및 단어 딕셔너리 추출
     us_data = df3[df3['국가'] == '미국']
@@ -239,23 +239,20 @@ with col3_1:
     
     font_path = "NanumGothic-Regular.ttf"
     
-    # 파일이 서버 환경에 없다면 구글 폰트 저장소에서 직접 다운로드
     if not os.path.exists(font_path):
         font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
         urllib.request.urlretrieve(font_url, font_path)
         
-    # 다운로드한 폰트를 Matplotlib 시스템에 정식 등록하여 그래프 타이틀 깨짐 해결
     fm.fontManager.addfont(font_path)
     font_prop = fm.FontProperties(fname=font_path)
     plt.rc('font', family=font_prop.get_name())
-    plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
+    plt.rcParams['axes.unicode_minus'] = False 
     # -----------------------------------------------------------------
         
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
     
-    # 1. 미국 워드클라우드 생성 (비중 순 정렬 유지)
+    # 1. 미국 워드클라우드 생성
     if us_words:
-        # 값이 큰 단어가 더 먼저 렌더링되어 색상이 진해지도록 딕셔너리 내림차순 정렬
         us_words_sorted = dict(sorted(us_words.items(), key=lambda item: item[1], reverse=True))
         
         wc_us = WordCloud(
@@ -263,17 +260,17 @@ with col3_1:
             background_color='white', 
             font_path=font_path, 
             colormap='Blues',
-            prefer_horizontal=1.0 # 글씨를 가로로만 깔끔하게 정렬
+            prefer_horizontal=1.0,
+            min_font_size=25,       
+            max_font_size=90        
         ).generate_from_frequencies(us_words_sorted)
         
         axes[0].imshow(wc_us, interpolation='bilinear')
-        # [해결] fontproperties를 명시하여 상단 타이틀 한글 깨짐 차단
-        axes[0].set_title("미국 선호 콘텐츠", fontproperties=font_prop, fontsize=16, pad=15)
+        axes[0].set_title("미국 선호 콘텐츠", fontproperties=font_prop, fontsize=14, color='#31333f', pad=15, loc='left')
     axes[0].axis('off')
     
-    # 2. 중국 워드클라우드 생성 (색상 그라데이션 수정)
+    # 2. 중국 워드클라우드 생성
     if cn_words:
-        # [해결] 드라마가 연하게 나오도록 소비 비중 순서대로 정확하게 내림차순 정렬 적용
         cn_words_sorted = dict(sorted(cn_words.items(), key=lambda item: item[1], reverse=True))
         
         wc_cn = WordCloud(
@@ -281,15 +278,15 @@ with col3_1:
             background_color='white', 
             font_path=font_path, 
             colormap='Reds',
-            prefer_horizontal=1.0
+            prefer_horizontal=1.0,
+            min_font_size=25,       
+            max_font_size=90
         ).generate_from_frequencies(cn_words_sorted)
         
         axes[1].imshow(wc_cn, interpolation='bilinear')
-        # [해결] fontproperties를 명시하여 상단 타이틀 한글 깨짐 차단
-        axes[1].set_title("중국 선호 콘텐츠", fontproperties=font_prop, fontsize=16, pad=15)
+        axes[1].set_title("중국 선호 콘텐츠", fontproperties=font_prop, fontsize=14, color='#31333f', pad=15, loc='left')
     axes[1].axis('off')
     
-    # 그래프 레이아웃 최적화 및 출력
     plt.tight_layout()
     st.pyplot(fig)
 
