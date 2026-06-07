@@ -5,7 +5,7 @@ import os
 import plotly.express as px
 
 # 1. 페이지 설정 및 데이터베이스 연결 체크
-st.set_page_config(page_title="강릉 외국인 관광 인사이트", layout="wide")
+st.set_page_config(page_title="강원도 외국인 관광 인사이트", layout="wide")
 
 DB_PATH = "강릉.db"
 
@@ -18,7 +18,7 @@ if not os.path.exists(DB_PATH):
     st.stop()
 
 st.title("외국인 관광객 인사이트 대시보드")
-st.markdown("강릉을 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.")
+st.markdown("강원도를 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.")
 
 # 데이터 조회를 위한 함수
 def run_query(q):
@@ -28,7 +28,7 @@ def run_query(q):
 # ---------------------------------------------------------
 # 1. 1인당 객단가 비교 (외국인 vs 외지인)
 # ---------------------------------------------------------
-st.header("1. 외국인 vs 외지인 1인당 객단가 비교")
+st.header("1. 외국인·외지인 관광객 객단가 비교")
 
 # SQL 쿼리에서 ROUND(..., 2)를 ROUND(..., 0)으로 수정하여 소수점을 제거했습니다.
 sql1 = """
@@ -62,8 +62,28 @@ st.markdown(
     ">
         <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
         <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
-            •&nbsp;&nbsp;본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.<br>
-            •&nbsp;&nbsp;외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.
+            •&nbsp;&nbsp;본 분석은 2025년 5월~2026년 4월 기준 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;외지인은 강원특별자치도 외 지역에 거주하는 국내 방문자를 의미합니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+# 참고 밑 가설 설정 파트 추가
+st.markdown(
+    """
+    <div style="
+        background-color: #f1f9f5; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">❓가설 설정</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;외국인 관광객은 1회 방문 시 지출 성향이 강해 외지인보다 1인당 객단가가 높을 것이다.<br>
+            •&nbsp;&nbsp;강원특별자치도의 특성상 외지인(국내 거주자)은 단기 반복 방문이 많아 평균 객단가가 낮게 산출될 것이다.
         </div>
     </div>
     """,
