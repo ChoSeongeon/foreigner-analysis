@@ -439,7 +439,7 @@ with col_left:
     # [추가] 강원도 사용 SQL 토글 박스 배치
     with st.expander("💻 사용한 SQL"):
     # SQL 쿼리 전체를 반드시 """ (따옴표 3개)로 감싸주어야 합니다.
-    st.code("""
+        st.code("""
 WITH Ranked_Shopping_Subcategory AS (
     SELECT 
         연도,
