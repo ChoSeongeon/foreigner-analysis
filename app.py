@@ -50,8 +50,25 @@ with col1_2:
 
 # 인사이트 파트 위에 '참고' 파트를 새로 추가했습니다.
 # 필요에 따라 안에 들어갈 내용을 수정하여 사용하세요.
-st.info("**📌 참고**\n- 본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.\n- 외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.")
-
+st.markdown(
+    """
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 15px; 
+        border-radius: 5px; 
+        border-left: 5px solid #6c757d;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
+        <span style="color: #212529; line-height: 1.6;">
+            • 본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.<br>
+            • 외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.
+        </span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 st.info("**💡 인사이트**\n- 외국인 관광객의 1인당 지출액이 내국인(외지인)보다 상대적으로 높게 나타나는 경향이 있습니다.\n- 고부가가치 관광객 유치를 위한 전략적 접근이 필요함을 시사합니다.")
 
 
