@@ -222,7 +222,7 @@ col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
     # -----------------------------------------------------------------
-    # 소제목 디자인 일치화 (Streamlit 표준 텍스트 적용)
+    # 소제목 디자인 일치화 (상단 타이틀 배치)
     # -----------------------------------------------------------------
     st.markdown(
         """
@@ -235,49 +235,53 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 렌더링 엔진 (matplotlib 기반 수동 가중치 배치)
+    # 정밀 시각화 엔진 (안전한 기본 폰트 시스템 우회)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
     
-    # 한글 폰트 설정
-    font_prop = fm.FontProperties(fname=font_path)
+    # OS별 기본 한글 폰트 자동 지정 (에러 원천 차단)
+    import platform
+    if platform.system() == 'Windows':
+        plt.rc('font', family='Malgun Gothic')
+    elif platform.system() == 'Darwin':  # 맥
+        plt.rc('font', family='AppleGothic')
+    else:  # 리눅스/스트림릿 클라우드 서버 환경
+        plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
-    # 우측 SQL 컨테이너와 완벽하게 대칭을 이루도록 널찍한 사각형 캔버스 오픈
-    fig, axes = plt.subplots(1, 2, figsize=(7, 4.5), facecolor='white')
+    # 우측 SQL 컨테이너 크기에 밀리지 않도록 정사각형에 가까운 넉넉한 비율 설정
+    fig, axes = plt.subplots(1, 2, figsize=(7, 4.8), facecolor='white')
     
-    # 1. 미국 데이터 강제 매핑 (뷰티 > 웹툰 = 패션)
+    # 1. 미국 데이터 수동 강제 매핑
     ax_us = axes[0]
     ax_us.set_facecolor('white')
-    
-    # 1등 뷰티: 가장 크고 진하게
-    ax_us.text(0.5, 0.65, '뷰티', fontproperties=font_prop, fontsize=42, weight='bold', color='#1e5096', ha='center', va='center')
-    # 공동 2등 웹툰 & 패션: 완벽하게 동일한 크기(32)와 색상 배치
-    ax_us.text(0.28, 0.32, '웹툰', fontproperties=font_prop, fontsize=32, weight='bold', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.72, 0.32, '패션', fontproperties=font_prop, fontsize=32, weight='bold', color='#64a0dc', ha='center', va='center')
+    # 1위 뷰티: 가장 크고 진한 블루
+    ax_us.text(0.5, 0.68, '뷰티', fontsize=45, weight='bold', color='#1e5096', ha='center', va='center')
+    # 공동 2위 웹툰 & 패션: 수치가 완벽히 같으므로 똑같은 크기(34)와 똑같은 색상으로 정렬
+    ax_us.text(0.26, 0.32, '웹툰', fontsize=34, weight='bold', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.74, 0.32, '패션', fontsize=34, weight='bold', color='#64a0dc', ha='center', va='center')
     ax_us.axis('off')
     ax_us.set_xlim(0, 1)
     ax_us.set_ylim(0, 1)
     
-    # 2. 중국 데이터 강제 매핑 (뷰티 40 > 패션 39 > 드라마 28)
+    # 2. 중국 데이터 수동 강제 매핑 (순위 및 우위 격차 명확화)
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
-    
-    # 1등 뷰티(40%): 가장 크고 깊고 어두운 레드
-    ax_cn.text(0.5, 0.73, '뷰티', fontproperties=font_prop, fontsize=45, weight='bold', color='#b42828', ha='center', va='center')
-    # 2등 패션(39%): 1등보다 살짝 작고 미세하게 명도가 밝은 레드 색상 차이 부여
-    ax_cn.text(0.5, 0.43, '패션', fontproperties=font_prop, fontsize=41, weight='bold', color='#dc5050', ha='center', va='center')
-    # 3등 드라마(28%): 확실하게 작고 은은한 핑크빛 레드로 생존 노출
-    ax_cn.text(0.5, 0.16, '드라마', fontproperties=font_prop, fontsize=28, weight='normal', color='#f48c8c', ha='center', va='center')
+    # 1등 뷰티(40%): 독보적으로 가장 크고 가장 어두운 딥레드
+    ax_cn.text(0.5, 0.73, '뷰티', fontsize=46, weight='bold', color='#8b0000', ha='center', va='center')
+    # 2등 패션(39%): 1등보다 1%p 차이만큼 미세하게 작고 확실하게 '덜 어두운 브라이트 레드'로 색상 대비 부여
+    ax_cn.text(0.5, 0.44, '패션', fontsize=41, weight='bold', color='#e03a3a', ha='center', va='center')
+    # 3등 드라마(28%): 누락 없이 생존 확보, 눈에 띄게 작고 연한 소프트 핑크레드 처리
+    ax_cn.text(0.5, 0.16, '드라마', fontsize=28, weight='medium', color='#f39292', ha='center', va='center')
     ax_cn.axis('off')
     ax_cn.set_xlim(0, 1)
     ax_cn.set_ylim(0, 1)
     
-    # 테두리 여백을 완전히 제로화하여 화면에 꽉 차게 조율
+    # 좌우 테두리 여백 압축하여 화면 가득 채우기
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.1, left=0.01, right=0.99, top=0.99, bottom=0.01)
     
-    # 다른 컨테이너를 방해하지 않고 할당된 자리에만 안전하게 이미지 렌더링
+    # 안전하게 지정된 컬럼 영역에 출력
     st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
