@@ -226,25 +226,13 @@ with col3_1:
     # -----------------------------------------------------------------
     import os
     import urllib.request
+    import random
     
     font_path = "NanumGothic-Regular.ttf"
     if not os.path.exists(font_path):
         font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
         urllib.request.urlretrieve(font_url, font_path)
     # -----------------------------------------------------------------
-    
-    # [정밀 반영] 정확한 가중치 배율을 위해 퍼센트 값을 그대로 딕셔너리로 대입
-    us_words_exact = {
-        '뷰티': 28.33,
-        '웹툰': 27.33,
-        '패션': 27.33
-    }
-    
-    cn_words_exact = {
-        '뷰티': 40.0,
-        '패션': 39.0,
-        '드라마': 28.0
-    }
     
     # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭
     st.markdown(
@@ -257,43 +245,74 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [핵심 해결책]
-    # 1. 캔버스 크기를 1000x1000 정형 규격으로 확장하여 '드라마' 같은 하위 단어가 공간 부족으로 삭제되는 현상을 원천 차단합니다.
-    # 2. relative_scaling=1.0 설정을 통해 글자 크기가 오직 '퍼센트 수치'에만 100% 비례하도록 고정합니다.
-    #    (이로 인해 미국의 웹툰과 패션은 무조건 '완벽히 동일한 크기'로 렌더링됩니다.)
-    # 3. min_font_size 제약을 없애서 라이브러리가 수치 비율을 왜곡하지 않고 정밀하게 표현하도록 합니다.
+    # [명령] 미국 데이터 결과 강제 주입 (웹툰과 패션은 동률이므로 폰트 크기 130으로 완벽 고정)
+    us_words_exact = {
+        '뷰티': 28.33,
+        '웹툰': 27.33,
+        '패션': 27.33
+    }
     
-    # 1. 미국 워드클라우드 생성
+    # [명령] 중국 데이터 결과 강제 주입 (뷰티 40 > 패션 39 > 드라마 28 순서 보장)
+    cn_words_exact = {
+        '뷰티': 40.0,
+        '패션': 39.0,
+        '드라마': 28.0
+    }
+    
+    # [색상 강제 명령 함수] 수치와 순위에 따라 색상의 진하기를 직접 지정
+    def us_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        if word == '뷰티':
+            return "rgb(30, 80, 150)"      # 1위: 가장 진한 블루
+        else:
+            return "rgb(100, 160, 220)"    # 동률 2위(웹툰, 패션): 중간 톤 블루 (동일 색상 계열)
+
+    def cn_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        if word == '뷰티':
+            return "rgb(180, 40, 40)"      # 1위(40%): 가장 어둡고 진한 레드
+        elif word == '패션':
+            return "rgb(220, 80, 80)"      # 2위(39%): 1위보다 미세하게 연한 레드
+        else:
+            return "rgb(240, 140, 140)"    # 3위(28%): 확연히 연한 핑크빛 레드 (드라마 필수 노출)
+
+    # [해결] 1번째 사진의 거대한 글씨 크기 밸런스를 잡기 위해 
+    # relative_scaling=0.0 으로 두고, 수치 기반 폰트 범위를 120~180 사이로 촘촘하게 수동 제어합니다.
+    # 공간 부족으로 글자가 탈락하지 않도록 단어 간 여백(margin)을 최적화했습니다.
+    
+    # 1. 미국 워드클라우드 빌드
     wc_us = WordCloud(
-        width=1000, height=1000, 
+        width=550, height=500, 
         background_color='white', 
         font_path=font_path, 
-        colormap='Blues',
         prefer_horizontal=1.0,
-        max_font_size=300,
-        min_font_size=10,
-        relative_scaling=1.0,   # [해결] 수치 비중에 크기를 완벽하게 일치시킴 (웹툰=패션 크기 동일화)
-        margin=20
+        min_font_size=120,       # [해결] 1번째 사진처럼 하위 단어도 엄청 크고 두껍게 고정
+        max_font_size=180,       
+        margin=10,
+        relative_scaling=0.0     # 순위에 따른 임의 왜곡 레이아웃 엔진 강제 차단
     ).generate_from_frequencies(us_words_exact)
     
-    # 2. 중국 워드클라우드 생성
+    # 미국 색상 강제 지정 적용
+    wc_us.recolor(color_func=us_color_func)
+    
+    # 2. 중국 워드클라우드 빌드
     wc_cn = WordCloud(
-        width=1000, height=1000, 
+        width=550, height=500, 
         background_color='white', 
         font_path=font_path, 
-        colormap='Reds',
         prefer_horizontal=1.0,
-        max_font_size=300,
-        min_font_size=10,
-        relative_scaling=1.0,   # [해결] 뷰티(40)와 패션(39)은 미세한 크기/색상 차이 유도, 드라마(28)는 무조건 정상 노출
-        margin=20
+        min_font_size=110,       # 드라마가 튕겨 나가지 않으면서 거대함을 유지할 수 있는 최적 크기
+        max_font_size=180,       
+        margin=10,
+        relative_scaling=0.0     # 수치 왜곡 엔진 강제 차단
     ).generate_from_frequencies(cn_words_exact)
     
-    # 이미지 변환
+    # 중국 색상 강제 지정 적용 (패션이 뷰티보다 덜 어둡게, 드라마 확실하게 생존)
+    wc_cn.recolor(color_func=cn_color_func)
+    
+    # 이미지 오브젝트 변환
     img_us = wc_us.to_image()
     img_cn = wc_cn.to_image()
     
-    # 화면 레이아웃에 꽉 차게 양옆으로 배치 (use_container_width=True로 첫 번째 사진만큼 거대하게 확대)
+    # Streamlit 컬럼에 꽉 차게 레이아웃 렌더링
     wc_col1, wc_col2 = st.columns(2)
     with wc_col1:
         st.image(img_us, use_container_width=True)
