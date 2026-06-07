@@ -235,7 +235,7 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (2번째 파일 크기로 꽉 채우기 모드)
+    # 정밀 시각화 엔진 (글자 크기 한계치 돌파 극대화 모드)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
@@ -249,39 +249,43 @@ with col3_1:
     else:  # 리눅스/스트림릿 클라우드 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
-    # [체크] 2번째 그래프 크기만큼 우측 SQL 칸과 완벽 대칭을 이루도록 figsize 종횡비 상향 조정
-    fig, axes = plt.subplots(1, 2, figsize=(7, 5.2), facecolor='white')
+    # 도화지 크기를 가로세로 완벽한 직사각형 비율(7, 4.2)로 잡고 내부 글자를 훨씬 더 키워 여백을 삭제합니다.
+    fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
     
-    # 1. 미국 데이터 강제 매핑 (빈 여백 없이 꽉 채우기)
+    # 1. 미국 데이터 수동 강제 매핑 (여백 없이 터질 듯이 배치)
     ax_us = axes[0]
     ax_us.set_facecolor('white')
-    # 1위 뷰티: 화면 상단을 가득 채우는 초대형 사이즈 적용
-    ax_us.text(0.5, 0.68, '뷰티', fontsize=65, weight='black', color='#1e5096', ha='center', va='center')
-    # 공동 2위 웹툰 & 패션: 수치 동률 반영 및 폰트 크기 대폭 상향 (46)
-    ax_us.text(0.24, 0.28, '웹툰', fontsize=46, weight='black', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.76, 0.28, '패션', fontsize=46, weight='black', color='#64a0dc', ha='center', va='center')
-    ax_us.axis('off')
-    ax_us.set_xlim(0, 1)
-    ax_us.set_ylim(0, 1)
     
-    # 2. 중국 데이터 강제 매핑 (순위 명확화 및 대형화)
+    # [크기 조정] 폰트 크기를 최대 110/82로 파격 상향하여 2번째 사진 크기 재현
+    ax_us.text(0.5, 0.68, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='center')
+    ax_us.text(0.22, 0.22, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.78, 0.22, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    
+    ax_us.axis('off')
+    # 내부 가상 경계 면적을 타이트하게 좁혀서 글자가 무조건 크게 확대되도록 유도
+    ax_us.set_xlim(0.05, 0.95)
+    ax_us.set_ylim(0.05, 0.95)
+    
+    # 2. 중국 데이터 수동 강제 매핑 (순위 명확화 및 대형화)
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
-    # 1등 뷰티(40%): 독보적인 크기와 묵직함
-    ax_cn.text(0.5, 0.75, '뷰티', fontsize=66, weight='black', color='#8b0000', ha='center', va='center')
-    # 2등 패션(39%): 1등보다 1%p 차이만큼 미세하게 작고 확실하게 '덜 어두운 브라이트 레드'
-    ax_cn.text(0.5, 0.44, '패션', fontsize=60, weight='black', color='#e03a3a', ha='center', va='center')
-    # 3등 드라마(28%): 하단부를 든든하게 받쳐주는 컴팩트한 사이즈 고정
-    ax_cn.text(0.5, 0.14, '드라마', fontsize=38, weight='bold', color='#f39292', ha='center', va='center')
+    
+    # [크기 조정] 1위 뷰티를 도화지 상단에 꽉 차게 115 크기로 배치
+    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='black', color='#8b0000', ha='center', va='center')
+    # 2위 패션(39%)은 1위보다 미세하게 작은 102 크기로 꽉 채움
+    ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='black', color='#e03a3a', ha='center', va='center')
+    # 3위 드라마(28%)도 2번째 사진만큼 존재감 넘치게 65 크기로 상향
+    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='black', color='#f39292', ha='center', va='center')
+    
     ax_cn.axis('off')
-    ax_cn.set_xlim(0, 1)
-    ax_cn.set_ylim(0, 1)
+    ax_cn.set_xlim(0.05, 0.95)
+    ax_cn.set_ylim(0.05, 0.95)
     
-    # 테두리 여백을 극단적으로 줄여 캔버스 전체를 글자로 가득 채움
+    # 플롯 주변의 흰색 패딩/마진을 제로에 가깝게 붙여서 알맹이 글자들만 꽉 차게 조율
     plt.tight_layout()
-    plt.subplots_adjust(wspace=0.05, left=0.01, right=0.99, top=0.99, bottom=0.01)
+    plt.subplots_adjust(wspace=0.02, left=0.00, right=1.00, top=1.00, bottom=0.00)
     
-    # 다른 영역 침범 없이 깔끔하게 렌더링
+    # 렌더링 출력
     st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
