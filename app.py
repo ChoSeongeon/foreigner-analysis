@@ -633,6 +633,8 @@ SELECT 연도, 순위, 중분류, CAST(ROUND(중분류_소비_비율, 1) AS VARC
 FROM Ranked_Shopping_Subcategory WHERE 순위 <= 3 ORDER BY 연도 ASC, 순위 ASC;
 """
 df6 = run_query(sql6)
+with st.expander("💻 사용한 SQL"):
+    st.code(sql6, language="sql")
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -693,3 +695,71 @@ with col_table:
     display_df = 쇼핑_상세_data.copy()
     display_df["비율"] = display_df["비율"].map(lambda x: f"{x:.1f}%")
     st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+# ---------------------------------------------------------
+# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
+# ---------------------------------------------------------
+# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;본 분석은 2023년~2025년 외국인 방문객 신용카드 소비 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;기타관광쇼핑에는 기념품, 사진기, 슈퍼마켓, 편의점, 농축수산물, 공예품, 예술품, 의류, 신발, 가방류, 생활용품, 귀금속 등 관광객이 여행 중 구매하는 다양한 소매·관광 상품 업종이 포함됩니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #f1f9f5; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;강원도 외국인 관광객의 쇼핑 소비는 3년 연속 기타관광쇼핑에 64% 이상 집중되어 있어 관광 관련 소매·기념품 소비가 쇼핑 지출의 핵심인 것으로 나타남
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 1.9; margin-top: 6px;">
+            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+                •&nbsp;&nbsp;강원도 특산품, 지역 한정 굿즈, 전통 공예품, 지역 브랜드 상품 등 관광 목적 소비를 유도할 수 있는 차별화된 쇼핑 콘텐츠를 확대할 필요가 있다.
+            </span><br>
+            <span style="color: #212529; font-size: 14px;">
+                •&nbsp;&nbsp;특히 기타관광쇼핑이 전체 쇼핑 소비의 약 65%를 차지하고 있는 만큼, 관광지 인근 상점과 특산품 판매장의 경쟁력 강화가 관광 소비 증대에 중요한 역할을 할 것으로 판단됨
+            </span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
