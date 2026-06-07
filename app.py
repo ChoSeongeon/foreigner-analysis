@@ -229,22 +229,15 @@ with col3_1:
     us_words = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
     cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
     
-    # [수정] OS별 폰트 경로 매핑 및 유효성 검사 확실하게 지정
     import os
-    
-    # 1. 배포 서버(리눅스) 경로 후보
-    linux_font = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-    # 2. 질문자님 맥북(로컬) 경로 후보
-    mac_font = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
-    
-    # 유효한 폰트 경로 찾기
-    if os.path.exists(linux_font):
-        font_path = linux_font
-    elif os.path.exists(mac_font):
-        font_path = mac_font
-    else:
-        # 둘 다 없을 때 시스템 기본 폰트 명칭으로 백업 (윈도우 등 대비)
-        font_path = "malgun"
+    import urllib.request
+
+    font_path = "NanumGothic-Regular.ttf"
+
+    # 파일이 폴더에 없다면, 구글 폰트 서버에서 자동으로 다운로드하여 생성합니다.
+    if not os.path.exists(font_path):
+        font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
+        urllib.request.urlretrieve(font_url, font_path)
         
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     
