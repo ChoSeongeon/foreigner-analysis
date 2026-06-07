@@ -231,15 +231,19 @@ with col3_1:
     cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
     
     # 워드클라우드 스타일 설정 (한글 깨짐 방지를 위해 나눔고딕 등 시스템 폰트 경로 지정 필요)
-   import os
+  import os
 
-    # 리눅스 배포 서버의 기본 나눔 폰트 경로 설정
+    # 1. 먼저 Streamlit Cloud 서버(리눅스)의 기본 나눔 폰트 경로 확인
     font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
     
-    # 만약 로컬(내 컴퓨터)에서 테스트할 때 에러가 난다면 시스템 기본 폰트를 쓰도록 예외 처리
+    # 2. 만약 서버 폰트 경로가 없다면 (즉, 질문자님의 맥북 로컬 환경이라면)
     if not os.path.exists(font_path):
-        font_path = "AppleGothic"  # 윈도우 로컬 테스트용 (맥이라면 "AppleGothic")
-    
+        # 맥북의 시스템 한글 폰트 경로 지정
+        font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+        
+        # 혹시 모를 윈도우 환경 테스트용 예외 처리
+        if not os.path.exists(font_path):
+            font_path = "malgun"
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     
     # 미국 워드클라우드 (Blue 계열)
