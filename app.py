@@ -438,28 +438,24 @@ with col_left:
     
     # [추가] 강원도 사용 SQL 토글 박스 배치
     with st.expander("💻 사용한 SQL"):
-        st.code(WITH Ranked_Shopping_Subcategory AS (
+    # SQL 쿼리 전체를 반드시 """ (따옴표 3개)로 감싸주어야 합니다.
+    st.code("""
+WITH Ranked_Shopping_Subcategory AS (
     SELECT 
         연도,
         "카테고리 대분류" AS 대분류,
         "카테고리 중분류" AS 중분류,
         "카테고리 중분류 소비 비율" AS 중분류_소비_비율,
-        
-       
         ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY "카테고리 중분류 소비 비율" DESC) AS 순위
     FROM 강원도소비유형합본
     WHERE 
         "카테고리 대분류" = '쇼핑업'    
-        AND 연도 IN (2023, 2024)       
-)
-
-
+        AND 연도 IN (2023, 2024))
 SELECT 
     연도,
     순위,
     대분류,
     중분류,
-    
     CAST(ROUND(중분류_소비_비율, 1) AS VARCHAR) || '%' AS 중분류_소비_비율
 FROM 
     Ranked_Shopping_Subcategory 
@@ -468,6 +464,7 @@ WHERE
 ORDER BY 
     연도 ASC, 
     순위 ASC;
+    """, language="sql")
 
 # --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
 with col_right:
