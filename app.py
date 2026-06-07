@@ -221,7 +221,9 @@ df3 = run_query(sql3)
 col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
-    # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭
+    # -----------------------------------------------------------------
+    # 소제목 디자인 일치화 (Streamlit 표준 텍스트 적용)
+    # -----------------------------------------------------------------
     st.markdown(
         """
         <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 15px; padding-left: 2px;">
@@ -232,30 +234,51 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [해결] WordCloud 라이브러리를 사용하지 않고, 1번째 원본 사진의 컴팩트하고 거대한 폰트 배치를 HTML로 직접 사사합니다.
-    # 데이터 비율에 맞춰 폰트 크기(rem/px)와 색상 코드(RGB)를 수동으로 정확하게 다이렉트 명령했습니다.
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: space-between; width: 100%; background-color: white; padding: 20px 10px; border-radius: 4px;">
-            
-            <div style="width: 48%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Nanum Gothic', sans-serif; line-height: 1.2; min-height: 320px;">
-                <div style="font-size: 72px; font-weight: 900; color: #1e5096; margin-bottom: 5px;">뷰티</div>
-                <div style="display: flex; justify-content: center; gap: 30px; width: 100%;">
-                    <div style="font-size: 55px; font-weight: bold; color: #64a0dc;">웹툰</div>
-                    <div style="font-size: 55px; font-weight: bold; color: #64a0dc;">패션</div>
-                </div>
-            </div>
-            
-            <div style="width: 48%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Nanum Gothic', sans-serif; line-height: 1.1; min-height: 320px; border-left: 1px solid #f0f2f6; padding-left: 10px;">
-                <div style="font-size: 78px; font-weight: 900; color: #b42828; margin-bottom: 2px;">뷰티</div>
-                <div style="font-size: 74px; font-weight: bold; color: #dc5050; margin-bottom: 10px;">패션</div>
-                <div style="font-size: 48px; font-weight: normal; color: #f48c8c;">드라마</div>
-            </div>
-            
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # -----------------------------------------------------------------
+    # 정밀 렌더링 엔진 (matplotlib 기반 수동 가중치 배치)
+    # -----------------------------------------------------------------
+    import matplotlib.pyplot as plt
+    import matplotlib.font_manager as fm
+    
+    # 한글 폰트 설정
+    font_prop = fm.FontProperties(fname=font_path)
+    
+    # 우측 SQL 컨테이너와 완벽하게 대칭을 이루도록 널찍한 사각형 캔버스 오픈
+    fig, axes = plt.subplots(1, 2, figsize=(7, 4.5), facecolor='white')
+    
+    # 1. 미국 데이터 강제 매핑 (뷰티 > 웹툰 = 패션)
+    ax_us = axes[0]
+    ax_us.set_facecolor('white')
+    
+    # 1등 뷰티: 가장 크고 진하게
+    ax_us.text(0.5, 0.65, '뷰티', fontproperties=font_prop, fontsize=42, weight='bold', color='#1e5096', ha='center', va='center')
+    # 공동 2등 웹툰 & 패션: 완벽하게 동일한 크기(32)와 색상 배치
+    ax_us.text(0.28, 0.32, '웹툰', fontproperties=font_prop, fontsize=32, weight='bold', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.72, 0.32, '패션', fontproperties=font_prop, fontsize=32, weight='bold', color='#64a0dc', ha='center', va='center')
+    ax_us.axis('off')
+    ax_us.set_xlim(0, 1)
+    ax_us.set_ylim(0, 1)
+    
+    # 2. 중국 데이터 강제 매핑 (뷰티 40 > 패션 39 > 드라마 28)
+    ax_cn = axes[1]
+    ax_cn.set_facecolor('white')
+    
+    # 1등 뷰티(40%): 가장 크고 깊고 어두운 레드
+    ax_cn.text(0.5, 0.73, '뷰티', fontproperties=font_prop, fontsize=45, weight='bold', color='#b42828', ha='center', va='center')
+    # 2등 패션(39%): 1등보다 살짝 작고 미세하게 명도가 밝은 레드 색상 차이 부여
+    ax_cn.text(0.5, 0.43, '패션', fontproperties=font_prop, fontsize=41, weight='bold', color='#dc5050', ha='center', va='center')
+    # 3등 드라마(28%): 확실하게 작고 은은한 핑크빛 레드로 생존 노출
+    ax_cn.text(0.5, 0.16, '드라마', fontproperties=font_prop, fontsize=28, weight='normal', color='#f48c8c', ha='center', va='center')
+    ax_cn.axis('off')
+    ax_cn.set_xlim(0, 1)
+    ax_cn.set_ylim(0, 1)
+    
+    # 테두리 여백을 완전히 제로화하여 화면에 꽉 차게 조율
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0.1, left=0.01, right=0.99, top=0.99, bottom=0.01)
+    
+    # 다른 컨테이너를 방해하지 않고 할당된 자리에만 안전하게 이미지 렌더링
+    st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
     st.subheader("💻 사용한 SQL")
