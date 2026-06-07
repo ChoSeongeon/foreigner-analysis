@@ -622,25 +622,38 @@ st.markdown(
 # ---------------------------------------------------------
 # 6. 강원도 쇼핑업 상세 분석
 # ---------------------------------------------------------
-st.divider()
-st.header("6. 강원도 외국인 관광객 쇼핑 유형 분석")
-sql6 = """
-WITH Ranked_Shopping_Subcategory AS (
-    SELECT 연도, 카테고리_대분류 AS 대분류, 카테고리_중분류 AS 중분류, 카테고리_중분류_소비_비율 AS 중분류_소비_비율,
-    ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 카테고리_중분류_소비_비율 DESC) AS 순위
-    FROM 강원도소비유형합본 WHERE 카테고리_대분류 = '쇼핑업')
-SELECT 연도, 순위, 중분류, CAST(ROUND(중분류_소비_비율, 1) AS VARCHAR) || '%' AS 중분류_소비_비율
-FROM Ranked_Shopping_Subcategory WHERE 순위 <= 3 ORDER BY 연도 ASC, 순위 ASC;
-"""
-df6 = run_query(sql6)
-with st.expander("💻 사용한 SQL"):
-    st.code(sql6, language="sql")
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# 1. 데이터 정의 (요청대로 2025년 표/데이터는 제외하고 2023, 2024만 유지)
+st.divider()
+st.header("6. 강원도 외국인 관광객 쇼핑 유형 분석")
+
+# [수정 포인트 1] SQL 쿼리 내부에서도 2025년 데이터가 나오지 않도록 조건문(AND 연도 IN...) 추가
+sql6 = """
+WITH Ranked_Shopping_Subcategory AS (
+    SELECT 
+        연도, 
+        "카테고리 대분류" AS 대분류, 
+        "카테고리 중분류" AS 중분류, 
+        "카테고리 중분류 소비 비율" AS 중분류_소비_비율,
+        ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY "카테고리 중분류 소비 비율" DESC) AS 순위
+    FROM 강원도소비유형합본 
+    WHERE "카테고리 대분류" = '쇼핑업'
+      AND 연도 IN (2023, 2024) -- 👈 쿼리 결과에서도 2025년을 원천 제외하여 데이터 정합성 맞춤
+)
+SELECT 
+    연도, 
+    순위, 
+    중분류, 
+    CAST(ROUND(중분류_소비_비율, 1) AS VARCHAR) || '%' AS 중분류_소비_비율
+FROM Ranked_Shopping_Subcategory 
+WHERE 순위 <= 3 
+ORDER BY 연도 ASC, 순위 ASC;
+"""
+df6 = run_query(sql6)
+
+# 1. 데이터 정의 (2023, 2024만 유지)
 쇼핑_상세_data = pd.DataFrame([
     {"연도": "2023", "중분류": "기타관광쇼핑", "비율": 64.3},
     {"연도": "2023", "중분류": "대형쇼핑몰", "비율": 26.8},
@@ -650,26 +663,23 @@ import streamlit as st
     {"연도": "2024", "중분류": "레저용품쇼핑", "비율": 9.8}
 ])
 
-# 레이아웃 분할: 왼쪽은 가로 막대 그래프, 오른쪽은 깔끔한 데이터 테이블 노출
+# 2. 레이아웃 분할 (상단 영역)
 col_graph, col_table = st.columns([1.2, 0.8])
 
 with col_graph:
     # 2개년 데이터이므로 세로 2칸짜리 subplot 도화지 생성
     fig, axes = plt.subplots(2, 1, figsize=(6, 4.2), facecolor='white')
     years = ["2023", "2024"]
-    colors_shop = ["#E67E22", "#F39C12"] # 쇼핑 테마에 어울리는 오렌지/골드 계열 톤
+    colors_shop = ["#E67E22", "#F39C12"] 
     
     for i, year in enumerate(years):
-        # 해당 연도 데이터 추출 후 하위 항목이 위로 오도록 오름차순 정렬 (barh 특성 반영)
         df_year = 쇼핑_상세_data[쇼핑_상세_data["연도"] == year].sort_values(by="비율", ascending=True)
         ax = axes[i]
         
-        # 가로 막대 그래프(barh) 그리기
         bars = ax.barh(df_year["중분류"], df_year["비율"], color=colors_shop[i], height=0.55)
         ax.set_title(f"{year}년 쇼핑 업종별 비중", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
-        ax.set_xlim(0, 80) # 65%가 넘는 데이터가 있으므로 범위를 80까지 여유있게 설정
+        ax.set_xlim(0, 80) 
         
-        # 깔끔한 UI를 위한 그리드 및 테두리(Spines) 정리
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['left'].set_color('#cccccc')
@@ -678,7 +688,6 @@ with col_graph:
         ax.set_axisbelow(True)
         ax.tick_params(axis='both', labelsize=9, colors='#555555')
         
-        # 막대 오른쪽 끝에 수치(%) 표기 레이블 추가
         for bar in bars:
             width = bar.get_width()
             ax.text(width + 2.0, bar.get_y() + bar.get_height()/2, f'{width:.1f}%', 
@@ -688,13 +697,14 @@ with col_graph:
     st.pyplot(fig)
 
 with col_table:
-    # 오른쪽에 기존 테이블 형태도 2023, 2024년만 깔끔하게 노출
     st.markdown('<div style="font-size:14px; font-weight:600; color:#555555; margin-bottom:8px;">📋 데이터 상세 보기</div>', unsafe_allow_html=True)
-    
-    # 보기 좋게 퍼센트 기호를 붙인 포맷팅 테이블 출력
     display_df = 쇼핑_상세_data.copy()
     display_df["비율"] = display_df["비율"].map(lambda x: f"{x:.1f}%")
     st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+st.write("") # 시각적 안정감을 위한 빈 한 칸 여백
+with st.expander("💻 사용한 SQL"):
+    st.code(sql6, language="sql")
 
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
