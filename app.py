@@ -235,13 +235,13 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (안전한 기본 폰트 시스템 우회)
+    # 정밀 시각화 엔진 (2번째 파일 크기로 꽉 채우기 모드)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
-    
-    # OS별 기본 한글 폰트 자동 지정 (에러 원천 차단)
     import platform
+    
+    # OS별 기본 한글 폰트 자동 지정
     if platform.system() == 'Windows':
         plt.rc('font', family='Malgun Gothic')
     elif platform.system() == 'Darwin':  # 맥
@@ -249,39 +249,39 @@ with col3_1:
     else:  # 리눅스/스트림릿 클라우드 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
-    # 우측 SQL 컨테이너 크기에 밀리지 않도록 정사각형에 가까운 넉넉한 비율 설정
-    fig, axes = plt.subplots(1, 2, figsize=(7, 4.8), facecolor='white')
+    # [체크] 2번째 그래프 크기만큼 우측 SQL 칸과 완벽 대칭을 이루도록 figsize 종횡비 상향 조정
+    fig, axes = plt.subplots(1, 2, figsize=(7, 5.2), facecolor='white')
     
-    # 1. 미국 데이터 수동 강제 매핑
+    # 1. 미국 데이터 강제 매핑 (빈 여백 없이 꽉 채우기)
     ax_us = axes[0]
     ax_us.set_facecolor('white')
-    # 1위 뷰티: 가장 크고 진한 블루
-    ax_us.text(0.5, 0.68, '뷰티', fontsize=45, weight='bold', color='#1e5096', ha='center', va='center')
-    # 공동 2위 웹툰 & 패션: 수치가 완벽히 같으므로 똑같은 크기(34)와 똑같은 색상으로 정렬
-    ax_us.text(0.26, 0.32, '웹툰', fontsize=34, weight='bold', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.74, 0.32, '패션', fontsize=34, weight='bold', color='#64a0dc', ha='center', va='center')
+    # 1위 뷰티: 화면 상단을 가득 채우는 초대형 사이즈 적용
+    ax_us.text(0.5, 0.68, '뷰티', fontsize=65, weight='black', color='#1e5096', ha='center', va='center')
+    # 공동 2위 웹툰 & 패션: 수치 동률 반영 및 폰트 크기 대폭 상향 (46)
+    ax_us.text(0.24, 0.28, '웹툰', fontsize=46, weight='black', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.76, 0.28, '패션', fontsize=46, weight='black', color='#64a0dc', ha='center', va='center')
     ax_us.axis('off')
     ax_us.set_xlim(0, 1)
     ax_us.set_ylim(0, 1)
     
-    # 2. 중국 데이터 수동 강제 매핑 (순위 및 우위 격차 명확화)
+    # 2. 중국 데이터 강제 매핑 (순위 명확화 및 대형화)
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
-    # 1등 뷰티(40%): 독보적으로 가장 크고 가장 어두운 딥레드
-    ax_cn.text(0.5, 0.73, '뷰티', fontsize=46, weight='bold', color='#8b0000', ha='center', va='center')
-    # 2등 패션(39%): 1등보다 1%p 차이만큼 미세하게 작고 확실하게 '덜 어두운 브라이트 레드'로 색상 대비 부여
-    ax_cn.text(0.5, 0.44, '패션', fontsize=41, weight='bold', color='#e03a3a', ha='center', va='center')
-    # 3등 드라마(28%): 누락 없이 생존 확보, 눈에 띄게 작고 연한 소프트 핑크레드 처리
-    ax_cn.text(0.5, 0.16, '드라마', fontsize=28, weight='medium', color='#f39292', ha='center', va='center')
+    # 1등 뷰티(40%): 독보적인 크기와 묵직함
+    ax_cn.text(0.5, 0.75, '뷰티', fontsize=66, weight='black', color='#8b0000', ha='center', va='center')
+    # 2등 패션(39%): 1등보다 1%p 차이만큼 미세하게 작고 확실하게 '덜 어두운 브라이트 레드'
+    ax_cn.text(0.5, 0.44, '패션', fontsize=60, weight='black', color='#e03a3a', ha='center', va='center')
+    # 3등 드라마(28%): 하단부를 든든하게 받쳐주는 컴팩트한 사이즈 고정
+    ax_cn.text(0.5, 0.14, '드라마', fontsize=38, weight='bold', color='#f39292', ha='center', va='center')
     ax_cn.axis('off')
     ax_cn.set_xlim(0, 1)
     ax_cn.set_ylim(0, 1)
     
-    # 좌우 테두리 여백 압축하여 화면 가득 채우기
+    # 테두리 여백을 극단적으로 줄여 캔버스 전체를 글자로 가득 채움
     plt.tight_layout()
-    plt.subplots_adjust(wspace=0.1, left=0.01, right=0.99, top=0.99, bottom=0.01)
+    plt.subplots_adjust(wspace=0.05, left=0.01, right=0.99, top=0.99, bottom=0.01)
     
-    # 안전하게 지정된 컬럼 영역에 출력
+    # 다른 영역 침범 없이 깔끔하게 렌더링
     st.pyplot(fig)
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
