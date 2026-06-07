@@ -232,16 +232,17 @@ with col3_1:
     
     # 워드클라우드 스타일 설정 (한글 깨짐 방지를 위해 나눔고딕 등 시스템 폰트 경로 지정 필요)
 import os
-    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+
+font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
 if not os.path.exists(font_path):
     font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
-
-    if not os.path.exists(font_path):
-        font_path = "malgun"
+    
+if not os.path.exists(font_path):
+    font_path = "malgun"
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    
+
 # 미국 워드클라우드 (Blue 계열)
     if us_words:
         wc_us = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Blues').generate_from_frequencies(us_words)
