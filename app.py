@@ -402,12 +402,17 @@ plt.rcParams['axes.unicode_minus'] = False
 col_left, col_right = st.columns(2)
 
 # --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
+# --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
 with col_left:
     st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
     
-    fig, axes = plt.subplots(3, 1, figsize=(6, 5.5), facecolor='white')
-    years = ["2023", "2024", "2025"]
-    colors_gw = ["#2b5c8f", "#4682b4", "#6baed6"]
+    # [수정 포인트 1] 그래프 세로 개수를 3개에서 2개로 축소 (3, 1 -> 2, 1)
+    # 2개로 줄었기 때문에 figsize 세로 크기도 5.5에서 4.0 정도로 줄이면 예쁘게 나옵니다.
+    fig, axes = plt.subplots(2, 1, figsize=(6, 4.0), facecolor='white')
+    
+    # [수정 포인트 2] 연도 리스트에서 "2025"를 완벽히 삭제
+    years = ["2023", "2024"]
+    colors_gw = ["#2b5c8f", "#4682b4"] # 컬러도 2개년치만 유지
     
     for i, year in enumerate(years):
         df_year = 강원_data[강원_data["연도"] == year].sort_values(by="비율", ascending=True)
@@ -424,7 +429,7 @@ with col_left:
         ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
         ax.set_axisbelow(True)
         ax.tick_params(axis='both', labelsize=9, colors='#555555')
-        
+       
         for bar in bars:
             width = bar.get_width()
             ax.text(width + 1.5, bar.get_y() + bar.get_height()/2, f'{width:.1f}%', 
@@ -508,8 +513,7 @@ with col_right:
     WHERE 
         필터_대분류 = '전체'
     GROUP BY 
-        소비_카테고리_대분류
-),
+        소비_카테고리_대분류),
 Yearly_Amount_2024 AS (
     SELECT 
         '2024년' AS 연도,
@@ -521,8 +525,7 @@ Yearly_Amount_2024 AS (
     WHERE 
         필터_대분류 = '전체'
     GROUP BY 
-        소비_카테고리_대분류
-)
+        소비_카테고리_대분류)
 SELECT 
     연도, 
     순위, 
@@ -532,9 +535,7 @@ FROM
     Yearly_Amount_2023
 WHERE 
     순위 <= 4
-
 UNION ALL
-
 SELECT 
     연도, 
     순위, 
