@@ -233,7 +233,7 @@ with col3_1:
         urllib.request.urlretrieve(font_url, font_path)
     # -----------------------------------------------------------------
     
-    # 전달해주신 SQL 결과 수치 100% 반영
+    # SQL 결과 수치 100% 보장
     us_words_exact = {
         '뷰티': 28.33,
         '웹툰': 27.33,
@@ -246,10 +246,10 @@ with col3_1:
         '드라마': 28.0
     }
     
-    # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭 (왼쪽 정렬, 스타일 고정)
+    # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭
     st.markdown(
         """
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 8px; padding-left: 2px;">
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 12px; padding-left: 2px;">
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px;">미국 선호 콘텐츠</div>
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px; padding-left: 15px;">중국 선호 콘텐츠</div>
         </div>
@@ -257,40 +257,40 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [해결] SQL 박스 크기와 밸런스를 맞추기 위해 해상도를 가로형(900x450)으로 대폭 확장
-    # max_font_size를 260까지 늘려 도화지에 글자가 꽉 차게 욱여넣도록 설정
+    # [해결] 1번째 사진의 거대하고 시원시원한 글씨 형태를 재현하기 위해 
+    # 해상도 비율을 정사각형 규격(550x500)으로 변경하여 상하좌우를 단어들로 꽉 채웁니다.
     
-    # 1. 미국 워드클라우드 개별 생성
+    # 1. 미국 워드클라우드 개별 생성 (1번째 사진 크기 튜닝)
     wc_us = WordCloud(
-        width=900, height=450, 
+        width=550, height=500, 
         background_color='white', 
         font_path=font_path, 
         colormap='Blues',
         prefer_horizontal=1.0,
-        min_font_size=90,       # 단어 개수가 적으므로 최소 크기를 극단적으로 끌어올려 공간 채움
-        max_font_size=260,      # 글자가 큼직하게 꽉 차도록 확대
-        margin=0,               # 내부 여백 제로화
-        relative_scaling=0.3    # 수치 비중 차이 대비 글자 크기가 급격하게 작아지는 현상 방지
+        min_font_size=110,      # 하위 단어도 1번째 사진처럼 웅장하게 키움
+        max_font_size=240,      # 1위 뷰티 글자가 캔버스를 가득 덮도록 확장
+        margin=5,               # 적절한 응집력을 위한 마진 부여
+        relative_scaling=0.1    # 단어들끼리 크기가 고르게 거대해지도록 밸런스 조정
     ).generate_from_frequencies(us_words_exact)
     
-    # 2. 중국 워드클라우드 개별 생성
+    # 2. 중국 워드클라우드 개별 생성 (1번째 사진 크기 튜닝)
     wc_cn = WordCloud(
-        width=900, height=450, 
+        width=550, height=500, 
         background_color='white', 
         font_path=font_path, 
         colormap='Reds',
         prefer_horizontal=1.0,
-        min_font_size=90,       
-        max_font_size=260,
-        margin=0,
-        relative_scaling=0.3
+        min_font_size=110,       
+        max_font_size=240,
+        margin=5,
+        relative_scaling=0.1
     ).generate_from_frequencies(cn_words_exact)
     
-    # 이미지 오브젝트화
+    # 이미지 변환
     img_us = wc_us.to_image()
     img_cn = wc_cn.to_image()
     
-    # [해결] 간격을 밀착시켜서 우측 SQL 박스와 수평 너비가 일치하도록 가로 컬럼 레이아웃 전개
+    # 좌우 컬럼 레이아웃 배치 (use_container_width로 대시보드 규격 최대 확장)
     wc_col1, wc_col2 = st.columns(2)
     with wc_col1:
         st.image(img_us, use_container_width=True)
