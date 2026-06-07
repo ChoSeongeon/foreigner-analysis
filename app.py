@@ -229,14 +229,21 @@ with col3_1:
     us_words = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
     cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
     
-    # OS 환경별 폰트 체크
+    # [수정] OS별 폰트 경로 매핑 및 유효성 검사 확실하게 지정
     import os
-    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
     
-    if not os.path.exists(font_path):
-        font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
-        
-    if not os.path.exists(font_path):
+    # 1. 배포 서버(리눅스) 경로 후보
+    linux_font = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+    # 2. 질문자님 맥북(로컬) 경로 후보
+    mac_font = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+    
+    # 유효한 폰트 경로 찾기
+    if os.path.exists(linux_font):
+        font_path = linux_font
+    elif os.path.exists(mac_font):
+        font_path = mac_font
+    else:
+        # 둘 다 없을 때 시스템 기본 폰트 명칭으로 백업 (윈도우 등 대비)
         font_path = "malgun"
         
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
@@ -246,14 +253,14 @@ with col3_1:
         wc_us = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Blues').generate_from_frequencies(us_words)
         axes[0].imshow(wc_us, interpolation='bilinear')
         axes[0].set_title("미국 선호 콘텐츠", fontsize=14, pad=10)
-    axes[0].axis('off')  # <- if문과 같은 깊이(스페이스바 4칸)로 정렬!
+    axes[0].axis('off')
     
     # 2. 중국 워드클라우드 생성 및 설정
     if cn_words:
         wc_cn = WordCloud(width=400, height=400, background_color='white', font_path=font_path, colormap='Reds').generate_from_frequencies(cn_words)
         axes[1].imshow(wc_cn, interpolation='bilinear')
         axes[1].set_title("중국 선호 콘텐츠", fontsize=14, pad=10)
-    axes[1].axis('off')  # <- if문과 같은 깊이(스페이스바 4칸)로 정렬!
+    axes[1].axis('off')
     
     # 그래프 플롯 출력
     st.pyplot(fig)
