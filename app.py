@@ -566,8 +566,8 @@ st.markdown(
     ">
         <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
         <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
-            •&nbsp;&nbsp;본 분석은 2023~2025년 데이터를 활용하였습니다.<br>
-            •&nbsp;&nbsp;방문·소비 통합 기여도 상위 국가 중 싱가포르는 한류 콘텐츠 선호도 데이터가 제공되지 않아 분석 대상에서 제외하였습니다.
+            •&nbsp;&nbsp;본 분석은 2023~2024년 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;외국인 방문객 신용카드 소비데이터를 활용하였습니다.
         </div>
     </div>
     """,
@@ -586,8 +586,8 @@ st.markdown(
     ">
         <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
         <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
-            •&nbsp;&nbsp;미국은 뷰티(28.33%), 웹툰(27.33%), 패션(27.33%) 순으로 높은 소비 비중을 보였다.<br>
-            •&nbsp;&nbsp;중국은 뷰티(40.00%), 패션(39.00%), 드라마(28.00%) 순으로 높은 소비 비중을 보였다.
+            •&nbsp;&nbsp;외국인 관광객의 주요 소비 분야는 숙박·식음료·쇼핑으로 나타났다.<br>
+            •&nbsp;&nbsp;강원도는 특히 숙박 및 식음료 소비가 높은 특징을 보인다.
         </div>
     </div>
     """,
@@ -608,10 +608,10 @@ st.markdown(
         <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
         <div style="line-height: 1.9; margin-top: 6px;">
             <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
-                •&nbsp;&nbsp;미국과 중국 관광객 모두 뷰티·패션 등 K-라이프스타일 콘텐츠에 대한 관심이 높게 나타났다.
+                •&nbsp;&nbsp;외국인 관광객의 주요 소비 분야인 숙박·식음료·쇼핑 산업을 중심으로 관광 상품과 서비스를 고도화할 필요가 있다.
             </span><br>
             <span style="color: #212529; font-size: 14px;">
-                •&nbsp;&nbsp;따라서 강원도 축제 및 관광 마케팅에서는 국가별 선호 콘텐츠를 반영한 맞춤형 프로그램 기획이 필요하다.
+                •&nbsp;&nbsp;지역 특색을 활용한 숙박 패키지, 미식 관광, 지역 특산품 쇼핑 콘텐츠를 확대한다면 외국인 관광객의 1인당 소비액 증가와 지역경제 활성화에 기여할 수 있을 것으로 기대된다.
             </span>
         </div>
     </div>
