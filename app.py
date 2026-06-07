@@ -221,23 +221,10 @@ df3 = run_query(sql3)
 col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
-    # -----------------------------------------------------------------
-    # 폰트 다운로드 설정
-    # -----------------------------------------------------------------
-    import os
-    import urllib.request
-    import random
-    
-    font_path = "NanumGothic-Regular.ttf"
-    if not os.path.exists(font_path):
-        font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
-        urllib.request.urlretrieve(font_url, font_path)
-    # -----------------------------------------------------------------
-    
     # [일치화] 첫 번째 사진의 서브타이틀 디자인 시스템과 100% 매칭
     st.markdown(
         """
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 12px; padding-left: 2px;">
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 15px; padding-left: 2px;">
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px;">미국 선호 콘텐츠</div>
             <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px; padding-left: 15px;">중국 선호 콘텐츠</div>
         </div>
@@ -245,79 +232,30 @@ with col3_1:
         unsafe_allow_html=True
     )
     
-    # [명령] 미국 데이터 결과 강제 주입 (웹툰과 패션은 동률이므로 폰트 크기 130으로 완벽 고정)
-    us_words_exact = {
-        '뷰티': 28.33,
-        '웹툰': 27.33,
-        '패션': 27.33
-    }
-    
-    # [명령] 중국 데이터 결과 강제 주입 (뷰티 40 > 패션 39 > 드라마 28 순서 보장)
-    cn_words_exact = {
-        '뷰티': 40.0,
-        '패션': 39.0,
-        '드라마': 28.0
-    }
-    
-    # [색상 강제 명령 함수] 수치와 순위에 따라 색상의 진하기를 직접 지정
-    def us_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
-        if word == '뷰티':
-            return "rgb(30, 80, 150)"      # 1위: 가장 진한 블루
-        else:
-            return "rgb(100, 160, 220)"    # 동률 2위(웹툰, 패션): 중간 톤 블루 (동일 색상 계열)
-
-    def cn_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
-        if word == '뷰티':
-            return "rgb(180, 40, 40)"      # 1위(40%): 가장 어둡고 진한 레드
-        elif word == '패션':
-            return "rgb(220, 80, 80)"      # 2위(39%): 1위보다 미세하게 연한 레드
-        else:
-            return "rgb(240, 140, 140)"    # 3위(28%): 확연히 연한 핑크빛 레드 (드라마 필수 노출)
-
-    # [해결] 1번째 사진의 거대한 글씨 크기 밸런스를 잡기 위해 
-    # relative_scaling=0.0 으로 두고, 수치 기반 폰트 범위를 120~180 사이로 촘촘하게 수동 제어합니다.
-    # 공간 부족으로 글자가 탈락하지 않도록 단어 간 여백(margin)을 최적화했습니다.
-    
-    # 1. 미국 워드클라우드 빌드
-    wc_us = WordCloud(
-        width=550, height=500, 
-        background_color='white', 
-        font_path=font_path, 
-        prefer_horizontal=1.0,
-        min_font_size=120,       # [해결] 1번째 사진처럼 하위 단어도 엄청 크고 두껍게 고정
-        max_font_size=180,       
-        margin=10,
-        relative_scaling=0.0     # 순위에 따른 임의 왜곡 레이아웃 엔진 강제 차단
-    ).generate_from_frequencies(us_words_exact)
-    
-    # 미국 색상 강제 지정 적용
-    wc_us.recolor(color_func=us_color_func)
-    
-    # 2. 중국 워드클라우드 빌드
-    wc_cn = WordCloud(
-        width=550, height=500, 
-        background_color='white', 
-        font_path=font_path, 
-        prefer_horizontal=1.0,
-        min_font_size=110,       # 드라마가 튕겨 나가지 않으면서 거대함을 유지할 수 있는 최적 크기
-        max_font_size=180,       
-        margin=10,
-        relative_scaling=0.0     # 수치 왜곡 엔진 강제 차단
-    ).generate_from_frequencies(cn_words_exact)
-    
-    # 중국 색상 강제 지정 적용 (패션이 뷰티보다 덜 어둡게, 드라마 확실하게 생존)
-    wc_cn.recolor(color_func=cn_color_func)
-    
-    # 이미지 오브젝트 변환
-    img_us = wc_us.to_image()
-    img_cn = wc_cn.to_image()
-    
-    # Streamlit 컬럼에 꽉 차게 레이아웃 렌더링
-    wc_col1, wc_col2 = st.columns(2)
-    with wc_col1:
-        st.image(img_us, use_container_width=True)
-    with wc_col2:
-        st.image(img_cn, use_container_width=True)
+    # [해결] WordCloud 라이브러리를 사용하지 않고, 1번째 원본 사진의 컴팩트하고 거대한 폰트 배치를 HTML로 직접 사사합니다.
+    # 데이터 비율에 맞춰 폰트 크기(rem/px)와 색상 코드(RGB)를 수동으로 정확하게 다이렉트 명령했습니다.
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: space-between; width: 100%; background-color: white; padding: 20px 10px; border-radius: 4px;">
+            
+            <div style="width: 48%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Nanum Gothic', sans-serif; line-height: 1.2; min-height: 320px;">
+                <div style="font-size: 72px; font-weight: 900; color: #1e5096; margin-bottom: 5px;">뷰티</div>
+                <div style="display: flex; justify-content: center; gap: 30px; width: 100%;">
+                    <div style="font-size: 55px; font-weight: bold; color: #64a0dc;">웹툰</div>
+                    <div style="font-size: 55px; font-weight: bold; color: #64a0dc;">패션</div>
+                </div>
+            </div>
+            
+            <div style="width: 48%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Nanum Gothic', sans-serif; line-height: 1.1; min-height: 320px; border-left: 1px solid #f0f2f6; padding-left: 10px;">
+                <div style="font-size: 78px; font-weight: 900; color: #b42828; margin-bottom: 2px;">뷰티</div>
+                <div style="font-size: 74px; font-weight: bold; color: #dc5050; margin-bottom: 10px;">패션</div>
+                <div style="font-size: 48px; font-weight: normal; color: #f48c8c;">드라마</div>
+            </div>
+            
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 with col3_2:
     # 요청하신 '💻 사용한 SQL' 대제목 추가
     st.subheader("💻 사용한 SQL")
