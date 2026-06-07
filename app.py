@@ -231,8 +231,14 @@ with col3_1:
     cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
     
     # 워드클라우드 스타일 설정 (한글 깨짐 방지를 위해 나눔고딕 등 시스템 폰트 경로 지정 필요)
-    # Windows: "malgun.ttf", Mac: "AppleGothic.ttf" / 폰트가 없다면 기본 폰트로 렌더링되나 한글은 지정 필수
-    font_path = "AppleGothic"  # 혹은 "malgun" (운영체제에 맞게 설정 가능)
+   import os
+
+    # 리눅스 배포 서버의 기본 나눔 폰트 경로 설정
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+    
+    # 만약 로컬(내 컴퓨터)에서 테스트할 때 에러가 난다면 시스템 기본 폰트를 쓰도록 예외 처리
+    if not os.path.exists(font_path):
+        font_path = "AppleGothic"  # 윈도우 로컬 테스트용 (맥이라면 "AppleGothic")
     
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     
