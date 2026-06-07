@@ -17,7 +17,7 @@ if not os.path.exists(DB_PATH):
     st.error(f"❌ '{DB_PATH}' 파일을 찾을 수 없습니다. 데이터베이스 파일이 같은 폴더에 있는지 확인해주세요.")
     st.stop()
 
-st.title("🌲 강릉 외국인 관광객 인사이트 대시보드")
+st.title("외국인 관광객 인사이트 대시보드")
 st.markdown("강릉을 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.")
 
 # 데이터 조회를 위한 함수
@@ -29,12 +29,14 @@ def run_query(q):
 # 1. 1인당 객단가 비교 (외국인 vs 외지인)
 # ---------------------------------------------------------
 st.header("1. 외국인 vs 외지인 1인당 객단가 비교")
+
+# SQL 쿼리에서 ROUND(..., 2)를 ROUND(..., 0)으로 수정하여 소수점을 제거했습니다.
 sql1 = """
 SELECT
     ROUND((SELECT SUM(c.지역관광소비액_백만원 * 1000000.0) FROM 외국인관광소비 c WHERE c.기준년월일 BETWEEN 202505 AND 202604) /
-          (SELECT SUM(v.방문자수) FROM 외국인방문자수 v WHERE v.기준년월일 BETWEEN 202505 AND 202604), 2) AS 외국인_평균객단가,
+          (SELECT SUM(v.방문자수) FROM 외국인방문자수 v WHERE v.기준년월일 BETWEEN 202505 AND 202604), 0) AS 외국인_평균객단가,
     ROUND((SELECT SUM(s.관광소비액_백만원 * 1000000.0) FROM 전국대비관광소비추이외지인 s WHERE s.기준연월 BETWEEN 202505 AND 202604 AND s.지역명 = '강원특별자치도') /
-          (SELECT SUM(o.방문자수) FROM 외지인방문자수 o WHERE o.기준년월 BETWEEN 202505 AND 202604), 2) AS 외지인_평균객단가;
+          (SELECT SUM(o.방문자수) FROM 외지인방문자수 o WHERE o.기준년월 BETWEEN 202505 AND 202604), 0) AS 외지인_평균객단가;
 """
 df1 = run_query(sql1)
 
@@ -45,6 +47,10 @@ with col1_1:
 with col1_2:
     st.subheader("💻 사용한 SQL")
     st.code(sql1, language='sql')
+
+# 인사이트 파트 위에 '참고' 파트를 새로 추가했습니다.
+# 필요에 따라 안에 들어갈 내용을 수정하여 사용하세요.
+st.write("**📌 참고**\n- 본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.\n- 외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.")
 
 st.info("**💡 인사이트**\n- 외국인 관광객의 1인당 지출액이 내국인(외지인)보다 상대적으로 높게 나타나는 경향이 있습니다.\n- 고부가가치 관광객 유치를 위한 전략적 접근이 필요함을 시사합니다.")
 
