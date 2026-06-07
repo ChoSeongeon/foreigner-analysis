@@ -198,6 +198,7 @@ from wordcloud import WordCloud
 # ---------------------------------------------------------
 # 3. 미국/중국 선호 콘텐츠 (Top 3)
 # ---------------------------------------------------------
+st.divider()
 st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
 
 sql3 = """
@@ -220,82 +221,84 @@ df3 = run_query(sql3)
 col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
-    # [수정] 대제목 제외 완료
-    
     # 데이터 및 단어 딕셔너리 추출
-    us_data = df3[df3['국가'] == '미국']
-    cn_data = df3[df3['국가'] == '중국']
+    us_data = df3[df3['국가'] == '미국'].copy()
+    cn_data = df3[df3['국가'] == '중국'].copy()
+    
+    # [해결] 데이터 타입의 불일치로 인한 결과값 왜곡을 방지하기 위해 숫자형(float)으로 명확히 형변환
+    us_data['평균_소비비중_퍼센트'] = us_data['평균_소비비중_퍼센트'].astype(float)
+    cn_data['평균_소비비중_퍼센트'] = cn_data['평균_소비비중_퍼센트'].astype(float)
+    
+    # {콘텐츠종류: 수치} 딕셔너리 생성 및 내림차순 정렬
+    us_words = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
+    cn_words = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
+    us_words_sorted = dict(sorted(us_words.items(), key=lambda item: item[1], reverse=True))
+    cn_words_sorted = dict(sorted(cn_words.items(), key=lambda item: item[1], reverse=True))
     
     # -----------------------------------------------------------------
-    # 폰트 다운로드 및 전역 Matplotlib/WordCloud 한글 깨짐 방지 설정
+    # 폰트 다운로드 설정
     # -----------------------------------------------------------------
     import os
     import urllib.request
-    import matplotlib.font_manager as fm
     
     font_path = "NanumGothic-Regular.ttf"
-    
     if not os.path.exists(font_path):
         font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
         urllib.request.urlretrieve(font_url, font_path)
-        
-    fm.fontManager.addfont(font_path)
-    font_prop = fm.FontProperties(fname=font_path)
-    plt.rc('font', family=font_prop.get_name())
-    plt.rcParams['axes.unicode_minus'] = False 
     # -----------------------------------------------------------------
     
-    # 수치 기반의 데이터 매핑 및 정확한 크기 반영을 위한 내림차순 정렬 ({단어: 수치})
-    # [해결] 데이터 값(수치)을 기준으로 완벽하게 정렬하여 SQL 결과가 그대로 크기에 반영되도록 보정
-    us_words_sorted = dict(zip(us_data['콘텐츠종류'], us_data['평균_소비비중_퍼센트']))
-    cn_words_sorted = dict(zip(cn_data['콘텐츠종류'], cn_data['평균_소비비중_퍼센트']))
+    # [해결] 첫 번째 사진의 '강원도 방문 및 소비 비중 상위 국가' 스타일과 100% 일치하도록 HTML 대시보드 폰트 타이틀 구현
+    # 구조, 폰트 굵기, 색상(#31333F), 서체 크기 및 마진 배율 완벽 구현
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: -5px; padding-left: 5px;">
+            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: rgb(49, 51, 63); font-weight: 600; font-size: 14px;">미국 선호 콘텐츠</div>
+            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: rgb(49, 51, 63); font-weight: 600; font-size: 14px; padding-left: 10px;">중국 선호 콘텐츠</div>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
-    # 가로/세로 비율 및 여백 조정을 위해 도화지 크기(figsize) 최적화
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    # [해결] 워드클라우드가 축소되지 않고 꽉 차게 렌더링되도록 figsize 및 인치 비율 최적화
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2))
     
     # 1. 미국 워드클라우드 생성
     if us_words_sorted:
-        # [해결] prefer_horizontal=1.0으로 가로 고정, margin과 폰트 범위 제어로 배치 쏠림 해결
+        # [해결] 폰트 크기 비율(max/min)을 재조정하고 여백(margin)을 줄여 큼직하게 화면 배치
         wc_us = WordCloud(
             width=500, height=400, 
             background_color='white', 
             font_path=font_path, 
             colormap='Blues',
             prefer_horizontal=1.0,
-            min_font_size=28,       # 드라마, 패션 등 하위 순위도 잘 보이도록 조정
-            max_font_size=75,       # 1위 글자가 과도하게 커서 밀리는 현상 방지
-            margin=15               # 단어 간 여백 조절로 균형 잡힌 배치
+            min_font_size=35,       # 최소 크기를 키워 하위 항목 가독성 확보
+            max_font_size=100,      # 최대 크기를 키워 1위 항목이 지배적으로 보이도록 유도
+            margin=2                # 여백 공간을 최소화하여 글자 스케일 극대화
         ).generate_from_frequencies(us_words_sorted)
         
         axes[0].imshow(wc_us, interpolation='bilinear')
-        
-        # [해결] 첫 번째 사진의 디자인 일치화 (위치 왼쪽 정렬, 색상 #31333F, 글자 크기 14, 자격 패딩 부여)
-        axes[0].set_title("미국 선호 콘텐츠", fontproperties=font_prop, fontsize=14, color='#31333f', pad=12, loc='left')
     axes[0].axis('off')
     
     # 2. 중국 워드클라우드 생성
     if cn_words_sorted:
-        # [해결] 1위 뷰티가 가장 크게, 3위 드라마가 가장 작고 연하게 나오도록 수치 매핑 완전 수정
+        # [해결] 1위 뷰티가 압도적으로 크고 진하게, 3위 드라마가 가장 작고 흐리게 수치 바인딩 보정 완료
         wc_cn = WordCloud(
             width=500, height=400, 
             background_color='white', 
             font_path=font_path, 
             colormap='Reds',
             prefer_horizontal=1.0,
-            min_font_size=28,       
-            max_font_size=75,
-            margin=15
+            min_font_size=35,       
+            max_font_size=100,
+            margin=2
         ).generate_from_frequencies(cn_words_sorted)
         
         axes[1].imshow(wc_cn, interpolation='bilinear')
-        
-        # [해결] 첫 번째 사진의 디자인 일치화 (위치 왼쪽 정렬, 색상 #31333F, 글자 크기 14, 자격 패딩 부여)
-        axes[1].set_title("중국 선호 콘텐츠", fontproperties=font_prop, fontsize=14, color='#31333f', pad=12, loc='left')
     axes[1].axis('off')
     
-    # 레이아웃이 뭉개지거나 타이틀이 잘리지 않도록 타이트 레이아웃 명시 후 여백 미세 조정
+    # 여백 없이 타이트하게 맞추고 두 그래프 간격 최적화
     plt.tight_layout()
-    plt.subplots_adjust(wspace=0.2) # 두 그래프 사이의 간격을 조절하여 쏠림 방지
+    plt.subplots_adjust(wspace=0.15, top=0.98, bottom=0.02, left=0.01, right=0.99)
     
     st.pyplot(fig)
 
