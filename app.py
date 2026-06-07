@@ -1,0 +1,180 @@
+import streamlit as st
+import pandas as pd
+import sqlite3
+import os
+import plotly.express as px
+
+# 1. 페이지 설정 및 데이터베이스 연결 체크
+st.set_page_config(page_title="강릉 외국인 관광 인사이트", layout="wide")
+
+DB_PATH = "강릉.db"
+
+def get_connection():
+    return sqlite3.connect(DB_PATH)
+
+# 데이터베이스 파일 존재 여부 확인
+if not os.path.exists(DB_PATH):
+    st.error(f"❌ '{DB_PATH}' 파일을 찾을 수 없습니다. 데이터베이스 파일이 같은 폴더에 있는지 확인해주세요.")
+    st.stop()
+
+st.title("🌲 강릉 외국인 관광객 인사이트 대시보드")
+st.markdown("강릉을 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.")
+
+# 데이터 조회를 위한 함수
+def run_query(q):
+    with get_connection() as conn:
+        return pd.read_sql(q, conn)
+
+# ---------------------------------------------------------
+# 1. 1인당 객단가 비교 (외국인 vs 외지인)
+# ---------------------------------------------------------
+st.header("1. 외국인 vs 외지인 1인당 객단가 비교")
+sql1 = """
+SELECT
+    ROUND((SELECT SUM(c.지역관광소비액_백만원 * 1000000.0) FROM 외국인관광소비 c WHERE c.기준년월일 BETWEEN 202505 AND 202604) /
+          (SELECT SUM(v.방문자수) FROM 외국인방문자수 v WHERE v.기준년월일 BETWEEN 202505 AND 202604), 2) AS 외국인_평균객단가,
+    ROUND((SELECT SUM(s.관광소비액_백만원 * 1000000.0) FROM 전국대비관광소비추이외지인 s WHERE s.기준연월 BETWEEN 202505 AND 202604 AND s.지역명 = '강원특별자치도') /
+          (SELECT SUM(o.방문자수) FROM 외지인방문자수 o WHERE o.기준년월 BETWEEN 202505 AND 202604), 2) AS 외지인_평균객단가;
+"""
+df1 = run_query(sql1)
+
+col1_1, col1_2 = st.columns([1, 1])
+with col1_1:
+    st.subheader("📊 시각화 (객단가 비교)")
+    st.table(df1)
+with col1_2:
+    st.subheader("💻 사용한 SQL")
+    st.code(sql1, language='sql')
+
+st.info("**💡 인사이트**\n- 외국인 관광객의 1인당 지출액이 내국인(외지인)보다 상대적으로 높게 나타나는 경향이 있습니다.\n- 고부가가치 관광객 유치를 위한 전략적 접근이 필요함을 시사합니다.")
+
+
+# ---------------------------------------------------------
+# 2. 국가별 평균 방문자 비율+소비율 상위 3개국
+# ---------------------------------------------------------
+st.divider()
+st.header("2. 3개년 통합 우수 국가 (방문+소비)")
+sql2 = """
+WITH Avg_Visit AS (
+    SELECT 국가, AVG(방문자_비율) AS 평균_방문_비율 FROM 외국인방문합본
+    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가
+), 
+Avg_Consumption AS (
+    SELECT 국가, AVG(소비_비율) AS 평균_소비_비율 FROM 외국인소비합본
+    WHERE 국가 <> '기타' AND 연도 BETWEEN 2023 AND 2025 GROUP BY 국가
+),
+Combined_Metrics AS (
+    SELECT V.국가, V.평균_방문_비율, C.평균_소비_비율, (V.평균_방문_비율 + C.평균_소비_비율) AS 총_합산_점수,
+    ROW_NUMBER() OVER (ORDER BY (V.평균_방문_비율 + C.평균_소비_비율) DESC) AS 통합_순위
+    FROM Avg_Visit V INNER JOIN Avg_Consumption C ON V.국가 = C.국가
+)
+SELECT 통합_순위, 국가, ROUND(평균_방문비율_3개년, 2) as 평균_방문비율_3개년, ROUND(평균_소비비율_3개년, 2) as 평균_소비비율_3개년, ROUND(총_합산_점수, 2) as 총_합산_점수 
+FROM (SELECT 통합_순위, 국가, 평균_방문_비율 as 평균_방문비율_3개년, 평균_소비_비율 as 평균_소비비율_3개년, 총_합산_점수 FROM Combined_Metrics WHERE 통합_순위 <= 3);
+"""
+df2 = run_query(sql2)
+
+col2_1, col2_2 = st.columns([2, 1])
+with col2_1:
+    fig2 = px.bar(df2, x='국가', y='총_합산_점수', text='총_합산_점수', color='국가', title="상위 3개국 통합 점수")
+    st.plotly_chart(fig2, use_container_width=True)
+with col2_2:
+    st.subheader("💻 사용한 SQL")
+    st.code(sql2, language='sql')
+
+st.info("**💡 인사이트**\n- 방문자 수와 소비액을 합산했을 때 가장 영향력이 큰 국가를 한눈에 파악할 수 있습니다.\n- 이 국가들을 대상으로 한 집중 마케팅(언어 맞춤형 안내 등)이 효율적일 것입니다.")
+
+
+# ---------------------------------------------------------
+# 3. 미국 vs 중국 콘텐츠 소비 비중 비교
+# ---------------------------------------------------------
+st.divider()
+st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
+sql3 = """
+WITH Avg_Content_Consumption AS (
+    SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비중
+    FROM 한국문화콘텐츠소비
+    WHERE 조사국가명 IN ('미국', '중국') AND 보고서년도내용 IN ('2023', '2024', '2025') AND 항목명 LIKE '%비중%'
+    GROUP BY 조사국가명, 콘텐츠URL
+),
+Ranked_Content AS (
+    SELECT 국가, 콘텐츠종류, 평균_소비_비중, ROW_NUMBER() OVER (PARTITION BY 국가 ORDER BY 평균_소비_비중 DESC) AS 콘텐츠_순위
+    FROM Avg_Content_Consumption
+)
+SELECT 국가, 콘텐츠_순위 AS 순위, 콘텐츠종류, ROUND(평균_소비_비중, 2) AS 평균_소비비중_퍼센트
+FROM Ranked_Content WHERE 콘텐츠_순위 <= 3;
+"""
+df3 = run_query(sql3)
+
+col3_1, col3_2 = st.columns(2)
+for i, country in enumerate(['미국', '중국']):
+    with [col3_1, col3_2][i]:
+        country_df = df3[df3['국가'] == country]
+        fig = px.bar(country_df, x='콘텐츠종류', y='평균_소비비중_퍼센트', title=f"{country} 선호 콘텐츠", color_discrete_sequence=['#FF4B4B' if country=='중국' else '#1C83E1'])
+        st.plotly_chart(fig, use_container_width=True)
+
+st.code(sql3, language='sql')
+st.info("**💡 인사이트**\n- 미국 관광객은 드라마/영화 등 엔터테인먼트에, 중국 관광객은 쇼핑이나 특정 앱 서비스 비중이 높을 수 있습니다.\n- 국가별로 관심 있는 콘텐츠가 다르므로 타겟팅된 홍보 자료 제작이 필요합니다.")
+
+
+# ---------------------------------------------------------
+# 4 & 5. 소비 분야 순위 (강원 vs 전국)
+# ---------------------------------------------------------
+st.divider()
+st.header("4 & 5. 외국인 신용카드 소비 트렌드")
+
+col4, col5 = st.columns(2)
+
+with col4:
+    st.subheader("📍 강원도 내 소비 순위")
+    sql4 = """
+    WITH Yearly_Category_Base AS (
+        SELECT 연도, 카테고리_대분류, MAX(카테고리_대분류_소비_비율) AS 대분류_소비_비율
+        FROM 강원도소비유형합본 GROUP BY 연도, 카테고리_대분류
+    ),
+    Ranked_Category AS (
+        SELECT 연도, 카테고리_대분류, 대분류_소비_비율, ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 대분류_소비_비율 DESC) AS 순위
+        FROM Yearly_Category_Base
+    )
+    SELECT 연도, 순위, 카테고리_대분류, ROUND(대분류_소비_비율, 1) || '%' AS 소비_비율
+    FROM Ranked_Category WHERE 순위 <= 3 ORDER BY 연도 ASC, 순위 ASC;
+    """
+    st.dataframe(run_query(sql4))
+
+with col5:
+    st.subheader("🇰🇷 전국 소비 순위")
+    sql5 = """
+    WITH Yearly_Amount_2023 AS (
+        SELECT '2023년' AS 연도, 소비_카테고리_대분류 AS 업종_대분류, SUM(소비액_2023) AS 총_소비액, ROW_NUMBER() OVER (ORDER BY SUM(소비액_2023) DESC) AS 순위
+        FROM 전국소비유형 WHERE 필터_대분류 = '전체' GROUP BY 소비_카테고리_대분류
+    ),
+    Yearly_Amount_2024 AS (
+        SELECT '2024년' AS 연도, 소비_카테고리_대분류 AS 업종_대분류, SUM(소비액_2024) AS 총_소비액, ROW_NUMBER() OVER (ORDER BY SUM(소비액_2024) DESC) AS 순위
+        FROM 전국소비유형 WHERE 필터_대분류 = '전체' GROUP BY 소비_카테고리_대분류
+    )
+    SELECT 연도, 순위, 업종_대분류, ROUND(총_소비액, 2) AS 소비액_USD FROM Yearly_Amount_2023 WHERE 순위 <= 4
+    UNION ALL
+    SELECT 연도, 순위, 업종_대분류, ROUND(총_소비액, 2) AS 소비액_USD FROM Yearly_Amount_2024 WHERE 순위 <= 4;
+    """
+    st.dataframe(run_query(sql5))
+
+st.info("**💡 인사이트**\n- 강원도는 전국 트렌드와 달리 숙박이나 음식점 비중이 높을 가능성이 큽니다.\n- 전국 대비 강원도만의 특화된 소비 업종을 발굴하여 홍보할 필요가 있습니다.")
+
+
+# ---------------------------------------------------------
+# 6. 강원도 쇼핑업 상세 분석
+# ---------------------------------------------------------
+st.divider()
+st.header("6. 강원도 외국인 쇼핑 상세")
+sql6 = """
+WITH Ranked_Shopping_Subcategory AS (
+    SELECT 연도, 카테고리_대분류 AS 대분류, 카테고리_중분류 AS 중분류, 카테고리_중분류_소비_비율 AS 중분류_소비_비율,
+    ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 카테고리_중분류_소비_비율 DESC) AS 순위
+    FROM 강원도소비유형합본 WHERE 카테고리_대분류 = '쇼핑업'
+)
+SELECT 연도, 순위, 중분류, CAST(ROUND(중분류_소비_비율, 1) AS VARCHAR) || '%' AS 중분류_소비_비율
+FROM Ranked_Shopping_Subcategory WHERE 순위 <= 3 ORDER BY 연도 ASC, 순위 ASC;
+"""
+df6 = run_query(sql6)
+st.table(df6)
+st.code(sql6, language='sql')
+st.info("**💡 인사이트**\n- 쇼핑 중에서도 어떤 품목(면세점, 대형마트 등)에 집중하는지 알 수 있습니다.\n- 특정 중분류의 인기가 높다면 해당 업종의 외국인 결제 편의성(간편결제 등)을 강화해야 합니다.")
