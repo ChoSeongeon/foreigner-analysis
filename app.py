@@ -62,8 +62,8 @@ st.markdown(
     ">
         <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
         <span style="color: #212529; line-height: 1.8; font-size: 14px;">
-            • 본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.<br>
-            • 외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.
+            •  본 데이터는 2025년 5월부터 2026년 4월까지의 기준 데이터입니다.<br>
+            •  외국인 및 외지인 방문자 정의에 따라 실제 체감 수치와 다를 수 있습니다.
         </span>
     </div>
     """,
