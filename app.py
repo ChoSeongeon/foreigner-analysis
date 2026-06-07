@@ -467,7 +467,7 @@ WHERE
     순위 <= 3
 ORDER BY 
     연도 ASC, 
-    순위 ASC;""", language="sql")
+    순위 ASC;
 
 # --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
 with col_right:
