@@ -357,49 +357,278 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---------------------------------------------------------
-# 4 & 5. 소비 분야 순위 (강원 vs 전국)
-# ---------------------------------------------------------
+# -----------------------------------------------------------------
+# 4 & 5. 외국인 신용카드 소비 트렌드 시각화 엔진 (+ SQL 박스 포함)
+# -----------------------------------------------------------------
+import matplotlib.pyplot as plt
+import platform
+import matplotlib.font_manager as fm
+
 st.divider()
-st.header("4 & 5. 외국인 신용카드 소비 트렌드")
+st.header("4. 외국인 관광객 소비 패턴 분석")
 
-col4, col5 = st.columns(2)
+# OS별 한글 폰트 설정
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+elif platform.system() == 'Darwin':
+    plt.rc('font', family='AppleGothic')
+else:
+    plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
 
-with col4:
-    st.subheader("📍 강원도 내 소비 순위")
-    sql4 = """
-    WITH Yearly_Category_Base AS (
-        SELECT 연도, 카테고리_대분류, MAX(카테고리_대분류_소비_비율) AS 대분류_소비_비율
-        FROM 강원도소비유형합본 GROUP BY 연도, 카테고리_대분류
-    ),
-    Ranked_Category AS (
-        SELECT 연도, 카테고리_대분류, 대분류_소비_비율, ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 대분류_소비_비율 DESC) AS 순위
-        FROM Yearly_Category_Base
-    )
-    SELECT 연도, 순위, 카테고리_대분류, ROUND(대분류_소비_비율, 1) || '%' AS 소비_비율
-    FROM Ranked_Category WHERE 순위 <= 3 ORDER BY 연도 ASC, 순위 ASC;
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 수동 매핑 (제공된 데이터셋 유지)
+강원_data = pd.DataFrame([
+    {"연도": "2023", "카테고리": "숙박업", "비율": 38.3},
+    {"연도": "2023", "카테고리": "식음료업", "비율": 24.4},
+    {"연도": "2023", "카테고리": "쇼핑업", "비율": 23.9},
+    {"연도": "2024", "카테고리": "숙박업", "비율": 32.4},
+    {"연도": "2024", "카테고리": "식음료업", "비율": 28.2},
+    {"연도": "2024", "카테고리": "쇼핑업", "비율": 24.9},
+    {"연도": "2025", "카테고리": "식음료업", "비율": 30.6},
+    {"연도": "2025", "카테고리": "숙박업", "비율": 27.4},
+    {"연도": "2025", "카테고리": "쇼핑업", "비율": 24.0}
+])
+
+전국_data = pd.DataFrame([
+    {"연도": "2023", "카테고리": "국제 교통비", "비율": 745.2},
+    {"연도": "2023", "카테고리": "쇼핑비", "비율": 453.3},
+    {"연도": "2023", "카테고리": "숙박비", "비율": 439.1},
+    {"연도": "2023", "카테고리": "식음료비", "비율": 288.9},
+    {"연도": "2024", "카테고리": "국제 교통비", "비율": 617.7},
+    {"연도": "2024", "카테고리": "쇼핑비", "비율": 439.2},
+    {"연도": "2024", "카테고리": "숙박비", "비율": 377.8},
+    {"연도": "2024", "카테고리": "식음료비", "비율": 258.6}
+])
+
+# 대타이틀 출력
+st.markdown('<h2 style="font-size:24px; font-weight:700; margin-bottom:20px;">4 & 5. 외국인 신용카드 소비 트렌드</h2>', unsafe_allow_html=True)
+
+# 강원도 / 전국 2열 레이아웃 설정
+col_left, col_right = st.columns(2)
+
+# --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
+with col_left:
+    st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
+    
+    fig, axes = plt.subplots(3, 1, figsize=(6, 5.5), facecolor='white')
+    years = ["2023", "2024", "2025"]
+    colors_gw = ["#2b5c8f", "#4682b4", "#6baed6"]
+    
+    for i, year in enumerate(years):
+        df_year = 강원_data[강원_data["연도"] == year].sort_values(by="비율", ascending=True)
+        ax = axes[i]
+        
+        bars = ax.barh(df_year["카테고리"], df_year["비율"], color=colors_gw[i], height=0.55)
+        ax.set_title(f"{year}년", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
+        ax.set_xlim(0, 50)
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#cccccc')
+        ax.spines['bottom'].set_color('#cccccc')
+        ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
+        ax.set_axisbelow(True)
+        ax.tick_params(axis='both', labelsize=9, colors='#555555')
+        
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(width + 1.5, bar.get_y() + bar.get_height()/2, f'{width:.1f}%', 
+                    va='center', ha='left', fontsize=9, fontweight='semibold', color='#444444')
+            
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    # [추가] 강원도 사용 SQL 토글 박스 배치
+    with st.expander("💻 사용한 SQL"):
+        st.code("""WITH Yearly_Category_Base AS (
+    SELECT 
+        연도,
+        카테고리_대분류,
+        MAX(카테고리_대분류_소비_비율) AS 대분류_소비_비율
+    FROM 
+        강원도소비유형합본
+    GROUP BY 
+        연도, 
+        카테고리_대분류
+),
+Ranked_Category AS (
+    SELECT 
+        연도,
+        카테고리_대분류,
+        대분류_소비_비율,
+        ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY 대분류_소비_비율 DESC) AS 순위
+    FROM 
+        Yearly_Category_Base
+)
+SELECT 
+    연도,
+    순위,
+    카테고리_대분류,
+    CONCAT(ROUND(대분류_소비_비율, 1), '%') AS 대분류_소비_비율
+FROM 
+    Ranked_Category
+WHERE 
+    순위 <= 3
+ORDER BY 
+    연도 ASC, 
+    순위 ASC;""", language="sql")
+
+
+# --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
+with col_right:
+    st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">🇰🇷 전국 소비 순위</div>', unsafe_allow_html=True)
+    
+    fig, axes = plt.subplots(2, 1, figsize=(6, 3.8), facecolor='white')
+    years_kr = ["2023", "2024"]
+    colors_kr = ["#a2d149", "#8bc34a"]
+    
+    for i, year in enumerate(years_kr):
+        df_year = 전국_data[전국_data["연도"] == year].sort_values(by="비율", ascending=True)
+        ax = axes[i]
+        
+        bars = ax.barh(df_year["카테고리"], df_year["비율"], color=colors_kr[i], height=0.6)
+        ax.set_title(f"{year}년", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
+        ax.set_xlim(0, 950)
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#cccccc')
+        ax.spines['bottom'].set_color('#cccccc')
+        ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
+        ax.set_axisbelow(True)
+        ax.tick_params(axis='both', labelsize=9, colors='#555555')
+        
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(width + 25, bar.get_y() + bar.get_height()/2, f'{width:,.1f}', 
+                    va='center', ha='left', fontsize=9, fontweight='semibold', color='#444444')
+            
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    # [추가] 전국 사용 SQL 토글 박스 배치
+    with st.expander("💻 사용한 SQL"):
+        st.code("""WITH Yearly_Amount_2023 AS (
+    SELECT 
+        '2023년' AS 연도,
+        소비_카테고리_대분류 AS 업종_대분류,
+        SUM(소비액_2023) AS 총_소비액,
+        ROW_NUMBER() OVER (ORDER BY SUM(소비액_2023) DESC) AS 순위
+    FROM 
+        전국소비유형
+    WHERE 
+        필터_대분류 = '전체'
+    GROUP BY 
+        소비_카테고리_대분류
+),
+Yearly_Amount_2024 AS (
+    SELECT 
+        '2024년' AS 연도,
+        소비_카테고리_대분류 AS 업종_대분류,
+        SUM(소비액_2024) AS 총_소비액,
+        ROW_NUMBER() OVER (ORDER BY SUM(소비액_2024) DESC) AS 순위
+    FROM 
+        전국소비유형
+    WHERE 
+        필터_대분류 = '전체'
+    GROUP BY 
+        소비_카테고리_대분류
+)
+SELECT 
+    연도, 
+    순위, 
+    업종_대분류, 
+    ROUND(총_소비액, 2) AS 평균_소비액_USD
+FROM 
+    Yearly_Amount_2023
+WHERE 
+    순위 <= 4
+
+UNION ALL
+
+SELECT 
+    연도, 
+    순위, 
+    업종_대분류, 
+    ROUND(총_소비액, 2) AS 평균_소비액_USD
+FROM 
+    Yearly_Amount_2024
+WHERE 
+    순위 <= 4
+
+ORDER BY 
+    연도 ASC, 
+    순위 ASC;""", language="sql")
+
+# ---------------------------------------------------------
+# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
+# ---------------------------------------------------------
+# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+st.markdown(
     """
-    st.dataframe(run_query(sql4))
-
-with col5:
-    st.subheader("🇰🇷 전국 소비 순위")
-    sql5 = """
-    WITH Yearly_Amount_2023 AS (
-        SELECT '2023년' AS 연도, 소비_카테고리_대분류 AS 업종_대분류, SUM(소비액_2023) AS 총_소비액, ROW_NUMBER() OVER (ORDER BY SUM(소비액_2023) DESC) AS 순위
-        FROM 전국소비유형 WHERE 필터_대분류 = '전체' GROUP BY 소비_카테고리_대분류
-    ),
-    Yearly_Amount_2024 AS (
-        SELECT '2024년' AS 연도, 소비_카테고리_대분류 AS 업종_대분류, SUM(소비액_2024) AS 총_소비액, ROW_NUMBER() OVER (ORDER BY SUM(소비액_2024) DESC) AS 순위
-        FROM 전국소비유형 WHERE 필터_대분류 = '전체' GROUP BY 소비_카테고리_대분류
-    )
-    SELECT 연도, 순위, 업종_대분류, ROUND(총_소비액, 2) AS 소비액_USD FROM Yearly_Amount_2023 WHERE 순위 <= 4
-    UNION ALL
-    SELECT 연도, 순위, 업종_대분류, ROUND(총_소비액, 2) AS 소비액_USD FROM Yearly_Amount_2024 WHERE 순위 <= 4;
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;본 분석은 2023~2025년 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;방문·소비 통합 기여도 상위 국가 중 싱가포르는 한류 콘텐츠 선호도 데이터가 제공되지 않아 분석 대상에서 제외하였습니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+st.markdown(
     """
-    st.dataframe(run_query(sql5))
+    <div style="
+        background-color: #f1f9f5; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;미국은 뷰티(28.33%), 웹툰(27.33%), 패션(27.33%) 순으로 높은 소비 비중을 보였다.<br>
+            •&nbsp;&nbsp;중국은 뷰티(40.00%), 패션(39.00%), 드라마(28.00%) 순으로 높은 소비 비중을 보였다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-st.info("**💡 인사이트**\n- 강원도는 전국 트렌드와 달리 숙박이나 음식점 비중이 높을 가능성이 큽니다.\n- 전국 대비 강원도만의 특화된 소비 업종을 발굴하여 홍보할 필요가 있습니다.")
-
+# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 1.9; margin-top: 6px;">
+            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+                •&nbsp;&nbsp;미국과 중국 관광객 모두 뷰티·패션 등 K-라이프스타일 콘텐츠에 대한 관심이 높게 나타났다.
+            </span><br>
+            <span style="color: #212529; font-size: 14px;">
+                •&nbsp;&nbsp;따라서 강원도 축제 및 관광 마케팅에서는 국가별 선호 콘텐츠를 반영한 맞춤형 프로그램 기획이 필요하다.
+            </span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------------------------------------------------
 # 6. 강원도 쇼핑업 상세 분석
