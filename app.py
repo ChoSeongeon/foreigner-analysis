@@ -206,12 +206,10 @@ WITH Avg_Content_Consumption AS (
     SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비중
     FROM 한국문화콘텐츠소비
     WHERE 조사국가명 IN ('미국', '중국') AND 보고서년도내용 IN ('2023', '2024', '2025') AND 항목명 LIKE '%비중%'
-    GROUP BY 조사국가명, 콘텐츠URL
-),
+    GROUP BY 조사국가명, 콘텐츠URL),
 Ranked_Content AS (
     SELECT 국가, 콘텐츠종류, 평균_소비_비중, ROW_NUMBER() OVER (PARTITION BY 국가 ORDER BY 평균_소비_비중 DESC) AS 콘텐츠_순위
-    FROM Avg_Content_Consumption
-)
+    FROM Avg_Content_Consumption)
 SELECT 국가, 콘텐츠_순위 AS 순위, 콘텐츠종류, ROUND(평균_소비_비중, 2) AS 평균_소비비중_퍼센트
 FROM Ranked_Content WHERE 콘텐츠_순위 <= 3;
 """
@@ -293,20 +291,66 @@ with col3_2:
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
 # ---------------------------------------------------------
+# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;본 분석은 2023~2025년 데이터를 활용하였습니다.<br>
+            •&nbsp;&nbsp;방문·소비 통합 기여도 상위 국가 중 싱가포르는 한류 콘텐츠 선호도 데이터가 제공되지 않아 분석 대상에서 제외하였습니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+st.markdown(
+    """
+    <div style="
+        background-color: #f1f9f5; 
+        padding: 18px 22px; 
+        border-radius: 0.5rem; 
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+            •&nbsp;&nbsp;미국은 뷰티(28.33%), 웹툰(27.33%), 패션(27.33%) 순으로 높은 소비 비중을 보였다.<br>
+            •&nbsp;&nbsp;중국은 뷰티(40.00%), 패션(39.00%), 드라마(28.00%) 순으로 높은 소비 비중을 보였다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
         padding: 18px 22px; 
         border-radius: 0.5rem; 
-        margin-top: 20px;
+        margin-top: 10px;
         margin-bottom: 10px;
         border: none;
     ">
         <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px; color: #212529; font-size: 14px;">
-            •&nbsp;&nbsp;미국 관광객은 드라마/영화 등 엔터테인먼트에, 중국 관광객은 쇼핑이나 특정 앱 서비스 비중이 높을 수 있습니다.<br>
-            •&nbsp;&nbsp;국가별로 관심 있는 콘텐츠가 다르므로 타겟팅된 홍보 자료 제작이 필요합니다.
+        <div style="line-height: 1.9; margin-top: 6px;">
+            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+                •&nbsp;&nbsp;미국과 중국 관광객 모두 뷰티·패션 등 K-라이프스타일 콘텐츠에 대한 관심이 높게 나타났다.
+            </span><br>
+            <span style="color: #212529; font-size: 14px;">
+                •&nbsp;&nbsp;따라서 강원도 축제 및 관광 마케팅에서는 국가별 선호 콘텐츠를 반영한 맞춤형 프로그램 기획이 필요하다.
+            </span>
         </div>
     </div>
     """,
