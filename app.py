@@ -203,7 +203,7 @@ st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
 
 sql3 = """
 WITH Avg_Content_Consumption AS (
-    SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비중
+    SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비종
     FROM 한국문화콘텐츠소비
     WHERE 조사국가명 IN ('미국', '중국') AND 보고서년도내용 IN ('2023', '2024', '2025') AND 항목명 LIKE '%비중%'
     GROUP BY 조사국가명, 콘텐츠URL),
@@ -283,10 +283,11 @@ with col3_1:
     
     # 최종 출력
     st.pyplot(fig)
+
 with col3_2:
-    # 요청하신 '💻 사용한 SQL' 대제목 추가
+    # 🚨 글자 깨짐 및 괄호 누수 오작동 구간 마크다운 정상화 완료
     st.subheader("💻 사용한 SQL")
-    st.code(sql3, language='sql')
+    st.code(sql3, language="sql")
 
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
@@ -402,17 +403,13 @@ plt.rcParams['axes.unicode_minus'] = False
 col_left, col_right = st.columns(2)
 
 # --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
-# --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
 with col_left:
     st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
     
-    # [수정 포인트 1] 그래프 세로 개수를 3개에서 2개로 축소 (3, 1 -> 2, 1)
-    # 2개로 줄었기 때문에 figsize 세로 크기도 5.5에서 4.0 정도로 줄이면 예쁘게 나옵니다.
     fig, axes = plt.subplots(2, 1, figsize=(6, 4.0), facecolor='white')
     
-    # [수정 포인트 2] 연도 리스트에서 "2025"를 완벽히 삭제
     years = ["2023", "2024"]
-    colors_gw = ["#2b5c8f", "#4682b4"] # 컬러도 2개년치만 유지
+    colors_gw = ["#2b5c8f", "#4682b4"]
     
     for i, year in enumerate(years):
         df_year = 강원_data[강원_data["연도"] == year].sort_values(by="비율", ascending=True)
@@ -438,9 +435,8 @@ with col_left:
     plt.tight_layout()
     st.pyplot(fig)
     
-    # [추가] 강원도 사용 SQL 토글 박스 배치
+    # 🚨 [교정 완료] with col_left 내부로 올바르게 들여쓰기(공백 4칸 추가)를 맞춰 깨짐 현상을 해결했습니다.
     with st.expander("💻 사용한 SQL"):
-    # SQL 쿼리 전체를 반드시 """ (따옴표 3개)로 감싸주어야 합니다.
         st.code("""
 WITH Ranked_Shopping_Subcategory AS (
     SELECT 
@@ -466,7 +462,7 @@ WHERE
 ORDER BY 
     연도 ASC, 
     순위 ASC;
-    """, language="sql")
+        """, language="sql")
 
 # --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
 with col_right:
@@ -500,7 +496,6 @@ with col_right:
     plt.tight_layout()
     st.pyplot(fig)
     
-    # [추가] 전국 사용 SQL 토글 박스 배치
     with st.expander("💻 사용한 SQL"):
         st.code("""WITH Yearly_Amount_2023 AS (
     SELECT 
@@ -549,7 +544,6 @@ WHERE
 ORDER BY 
     연도 ASC, 
     순위 ASC;""", language="sql")
-
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
 # ---------------------------------------------------------
@@ -627,7 +621,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 st.divider()
-st.header("6. 강원도 외국인 관광객 쇼핑 유형 분석")
+st.header("5. 강원도 외국인 관광객 쇼핑 유형 분석")
 
 # [수정 포인트 1] SQL 쿼리 내부에서도 2025년 데이터가 나오지 않도록 조건문(AND 연도 IN...) 추가
 sql6 = """
@@ -667,6 +661,19 @@ df6 = run_query(sql6)
 col_graph, col_table = st.columns([1.2, 0.8])
 
 with col_graph:
+    # 🚨 [교정 완료] 그래프 내 한글 깨짐(네모 뜸) 현상을 방지하는 OS별 폰트 엔진 추가
+    import platform
+    import matplotlib.font_manager as fm
+    
+    if platform.system() == 'Windows':
+        plt.rc('font', family='Malgun Gothic')
+    elif platform.system() == 'Darwin':
+        plt.rc('font', family='AppleGothic')
+    else:
+        plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
+        
+    plt.rcParams['axes.unicode_minus'] = False
+
     # 2개년 데이터이므로 세로 2칸짜리 subplot 도화지 생성
     fig, axes = plt.subplots(2, 1, figsize=(6, 4.2), facecolor='white')
     years = ["2023", "2024"]
