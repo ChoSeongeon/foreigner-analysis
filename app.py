@@ -233,30 +233,30 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (맥북 폰트 잘림 및 깨짐 교정 완료)
+    # 정밀 시각화 엔진 (맥북 폰트 충돌 교정 완료)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
     import platform
     
-    # 🚨 [맥북 교정] 도화지(subplots)를 만들기 전에 폰트 설정을 최우선으로 실행합니다.
+    # 🚨 맥북(Darwin) 환경에서 폰트 지정을 초기화 단에서 완전히 고정합니다.
     if platform.system() == 'Windows':
         plt.rc('font', family='Malgun Gothic')
-    elif platform.system() == 'Darwin':  # 맥북 (macOS)
-        plt.rc('font', family='AppleGothic')
-    else:  # 리눅스/스트림릿 클라우드 서버 환경
+    elif platform.system() == 'Darwin':  # 맥북 환경
+        plt.rcParams['font.family'] = 'AppleGothic'
+    else:  # 리눅스/스트림릿 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
     plt.rcParams['axes.unicode_minus'] = False
 
-    # 도화지 크기 설정 (7, 4.2 규격 유지)
+    # 🚨 [맥북 전용 교정] 도화지 생성 시 font 관련 weight 속성을 주지 않고 순수하게 생성합니다.
     fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
     
     # 1. 미국 데이터 강제 매핑 (하위 단어 세로 적층 구조)
     ax_us = axes[0]
     ax_us.set_facecolor('white')
     
-    # 🚨 [맥북 교정] 맥북 폰트(AppleGothic)와 충돌하는 weight='black'을 weight='bold'로 안전하게 수정
+    # 🚨 맥북 AppleGothic과 충돌을 일으키는 weight='black'을 안전한 'bold'로 우회 교정
     ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='bold', color='#1e5096', ha='center', va='center')
     ax_us.text(0.5, 0.44, '웹툰', fontsize=82, weight='bold', color='#64a0dc', ha='center', va='center')
     ax_us.text(0.5, 0.15, '패션', fontsize=82, weight='bold', color='#64a0dc', ha='center', va='center')
@@ -269,7 +269,7 @@ with col3_1:
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
     
-    # 🚨 [맥북 교정] 중국 텍스트 영역도 동일하게 weight='bold'로 수정하여 깨짐 차단
+    # 🚨 중국 데이터 텍스트 역시 weight='bold'로 매끄럽게 한글 출력 고정
     ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='bold', color='#8b0000', ha='center', va='center')
     ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='bold', color='#e03a3a', ha='center', va='center')
     ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='bold', color='#f39292', ha='center', va='center')
@@ -286,7 +286,6 @@ with col3_1:
     st.pyplot(fig)
 
 with col3_2:
-    # 🚨 글자 깨짐 및 괄호 누수 오작동 구간 마크다운 정상화 완료
     st.subheader("💻 사용한 SQL")
     st.code(sql3, language="sql")
 # ---------------------------------------------------------
