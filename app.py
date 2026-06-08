@@ -203,7 +203,7 @@ st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
 
 sql3 = """
 WITH Avg_Content_Consumption AS (
-    SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비종
+    SELECT 조사국가명 AS 국가, 콘텐츠URL AS 콘텐츠종류, AVG(CAST(전체총합수 AS DECIMAL(10,2))) AS 평균_소비_비중
     FROM 한국문화콘텐츠소비
     WHERE 조사국가명 IN ('미국', '중국') AND 보고서년도내용 IN ('2023', '2024', '2025') AND 항목명 LIKE '%비중%'
     GROUP BY 조사국가명, 콘텐츠URL),
