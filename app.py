@@ -646,7 +646,6 @@ st.markdown(
 # 6. 강원도 쇼핑업 상세 분석
 # ---------------------------------------------------------
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
 
 st.divider()
@@ -690,47 +689,63 @@ df6 = run_query(sql6)
 col_graph, col_table = st.columns([1.2, 0.8])
 
 with col_graph:
-    # 🚨 [교정 완료] 그래프 내 한글 깨짐(네모 뜸) 현상을 방지하는 OS별 폰트 엔진 추가
-    import platform
-    import matplotlib.font_manager as fm
-    
-    if platform.system() == 'Windows':
-        plt.rc('font', family='Malgun Gothic')
-    elif platform.system() == 'Darwin':
-        plt.rc('font', family='AppleGothic')
-    else:
-        plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
-        
-    plt.rcParams['axes.unicode_minus'] = False
-
-    # 2개년 데이터이므로 세로 2칸짜리 subplot 도화지 생성
-    fig, axes = plt.subplots(2, 1, figsize=(6, 4.2), facecolor='white')
-    years = ["2023", "2024"]
-    colors_shop = ["#E67E22", "#F39C12"] 
-    
-    for i, year in enumerate(years):
-        df_year = 쇼핑_상세_data[쇼핑_상세_data["연도"] == year].sort_values(by="비율", ascending=True)
-        ax = axes[i]
-        
-        bars = ax.barh(df_year["중분류"], df_year["비율"], color=colors_shop[i], height=0.55)
-        ax.set_title(f"{year}년 쇼핑 업종별 비중", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
-        ax.set_xlim(0, 80) 
-        
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('#cccccc')
-        ax.spines['bottom'].set_color('#cccccc')
-        ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
-        ax.set_axisbelow(True)
-        ax.tick_params(axis='both', labelsize=9, colors='#555555')
-        
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(width + 2.0, bar.get_y() + bar.get_height()/2, f'{width:.1f}%', 
-                    va='center', ha='left', fontsize=9, fontweight='semibold', color='#444444')
-            
-    plt.tight_layout()
-    st.pyplot(fig)
+    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (쇼핑 상세)
+    st.markdown(
+        """
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2023년 쇼핑 업종별 비중</div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">레저용품쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #E67E22; width: 10.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">8.7%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">대형쇼핑몰</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #E67E22; width: 33.5%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">26.8%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">기타관광쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #E67E22; width: 80.3%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">64.3%</div>
+                </div>
+            </div>
+            <hr style="margin: 8px 0; border: none; border-top: 1px dashed #dddddd;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2024년 쇼핑 업종별 비중</div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">레저용품쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #F39C12; width: 12.2%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">9.8%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">대형쇼핑몰</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #F39C12; width: 31.6%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">25.3%</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">기타관광쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #F39C12; width: 81.0%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">64.8%</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col_table:
     st.markdown('<div style="font-size:14px; font-weight:600; color:#555555; margin-bottom:8px;">📋 데이터 상세 보기</div>', unsafe_allow_html=True)
@@ -741,7 +756,6 @@ with col_table:
 st.write("") # 시각적 안정감을 위한 빈 한 칸 여백
 with st.expander("💻 사용한 SQL"):
     st.code(sql6, language="sql")
-
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
 # ---------------------------------------------------------
