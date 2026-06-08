@@ -194,7 +194,6 @@ st.markdown(
 
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-
 # ---------------------------------------------------------
 # 3. 미국/중국 선호 콘텐츠 (Top 3)
 # ---------------------------------------------------------
@@ -233,56 +232,31 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (배포 서버 및 맥북 환경 통합 폰트 교정)
+    # 🚨 [근본 해결] 맷플롯립을 우회하고 브라우저 한글을 사용하는 네이티브 웹 그래픽 카드 구현
+    # 기존 차트의 7, 4.2 인치 비율 배치를 그대로 html 높이와 크기로 고정 매핑했습니다.
     # -----------------------------------------------------------------
-    import matplotlib.pyplot as plt
-    import platform
-    
-    # 🚨 [최종 해결책] 폰트 객체 충돌을 차단하기 위해 맷플롯립의 전역 설정을 초기화하고 
-    # 로컬 맥북과 배포용 우분투 서버 전체에서 통용되는 범용 'sans-serif'로 완벽 변환합니다.
-    plt.rcParams.update(plt.rcParamsDefault)
-    plt.rcParams['font.family'] = 'sans-serif'
-    plt.rcParams['axes.unicode_minus'] = False
-
-    # 도화지 크기 설정 (7, 4.2 규격 유지)
-    fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
-    
-    # 1. 미국 데이터 강제 매핑 (하위 단어 세로 적층 구조)
-    ax_us = axes[0]
-    ax_us.set_facecolor('white')
-    
-    # 🚨 배포 서버에 없는 weight=속성은 지우고, 깨짐 없는 시스템 기본 가독성 글꼴로 한글을 고정합니다.
-    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, color='#1e5096', ha='center', va='center')
-    ax_us.text(0.5, 0.44, '웹툰', fontsize=82, color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.5, 0.15, '패션', fontsize=82, color='#64a0dc', ha='center', va='center')
-    
-    ax_us.axis('off')
-    ax_us.set_xlim(0.05, 0.95)
-    ax_us.set_ylim(0.05, 0.95)
-    
-    # 2. 중국 데이터 강제 매핑 (순위 및 명도 차이 유지)
-    ax_cn = axes[1]
-    ax_cn.set_facecolor('white')
-    
-    # 🚨 중국 텍스트 영역 역시 완벽히 동일하게 세팅하여 깨짐 문제를 완전히 뿌리뽑았습니다.
-    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, color='#8b0000', ha='center', va='center')
-    ax_cn.text(0.5, 0.44, '패션', fontsize=102, color='#e03a3a', ha='center', va='center')
-    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, color='#f39292', ha='center', va='center')
-    
-    ax_cn.axis('off')
-    ax_cn.set_xlim(0.05, 0.95)
-    ax_cn.set_ylim(0.05, 0.95)
-    
-    # 주변 여백 압축
-    plt.tight_layout()
-    plt.subplots_adjust(wspace=0.02, left=0.00, right=1.00, top=1.00, bottom=0.00)
-    
-    # 최종 출력
-    st.pyplot(fig)
+    st.markdown(
+        """
+        <div style="display: flex; width: 100%; height: 330px; background-color: white; border-radius: 4px; box-sizing: border-box;">
+            <div style="width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #eeeeee; padding-right: 10px;">
+                <div style="font-size: 80px; font-weight: 900; color: #1e5096; line-height: 1.1; letter-spacing: -2px; margin-bottom: 5px;">뷰티</div>
+                <div style="font-size: 60px; font-weight: 900; color: #64a0dc; line-height: 1.1; letter-spacing: -1px; margin-bottom: 5px;">웹툰</div>
+                <div style="font-size: 60px; font-weight: 900; color: #64a0dc; line-height: 1.1; letter-spacing: -1px;">패션</div>
+            </div>
+            <div style="width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-left: 10px;">
+                <div style="font-size: 83px; font-weight: 900; color: #8b0000; line-height: 1.1; letter-spacing: -2px; margin-bottom: 5px;">뷰티</div>
+                <div style="font-size: 73px; font-weight: 900; color: #e03a3a; line-height: 1.1; letter-spacing: -1px; margin-bottom: 5px;">패션</div>
+                <div style="font-size: 48px; font-weight: 900; color: #f39292; line-height: 1.1; letter-spacing: -1px;">드라마</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col3_2:
     st.subheader("💻 사용한 SQL")
     st.code(sql3, language="sql")
+
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
 # ---------------------------------------------------------
