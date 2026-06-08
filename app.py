@@ -329,24 +329,13 @@ st.markdown(
 # -----------------------------------------------------------------
 # 4 & 5. 외국인 신용카드 소비 트렌드 시각화 엔진 (+ SQL 박스 포함)
 # -----------------------------------------------------------------
-import matplotlib.pyplot as plt
-import platform
-import matplotlib.font_manager as fm
+import pandas as pd
+import streamlit as st
 
 st.divider()
 st.header("4. 외국인 관광객 소비 패턴 분석")
 
-# OS별 한글 폰트 설정
-if platform.system() == 'Windows':
-    plt.rc('font', family='Malgun Gothic')
-elif platform.system() == 'Darwin':
-    plt.rc('font', family='AppleGothic')
-else:
-    plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
-
-plt.rcParams['axes.unicode_minus'] = False
-
-# 데이터 수동 매핑 (제공된 데이터셋 유지)
+# 데이터 수동 매핑 (제공된 데이터셋 100% 유지)
 강원_data = pd.DataFrame([
     {"연도": "2023", "카테고리": "숙박업", "비율": 38.3},
     {"연도": "2023", "카테고리": "식음료업", "비율": 24.4},
@@ -374,36 +363,64 @@ col_left, col_right = st.columns(2)
 with col_left:
     st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
     
-    fig, axes = plt.subplots(2, 1, figsize=(6, 4.0), facecolor='white')
+    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (강원도)
+    st.markdown(
+        """
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2023년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #2b5c8f; width: 47.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">23.9%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #2b5c8f; width: 48.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">24.4%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #2b5c8f; width: 76.6%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">38.3%</div>
+                </div>
+            </div>
+            <hr style="margin: 8px 0; border: none; border-top: 1px dashed #dddddd;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2024년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #4682b4; width: 49.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">24.9%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #4682b4; width: 56.4%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">28.2%</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #4682b4; width: 64.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">32.4%</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
-    years = ["2023", "2024"]
-    colors_gw = ["#2b5c8f", "#4682b4"]
-    
-    for i, year in enumerate(years):
-        df_year = 강원_data[강원_data["연도"] == year].sort_values(by="비율", ascending=True)
-        ax = axes[i]
-        
-        bars = ax.barh(df_year["카테고리"], df_year["비율"], color=colors_gw[i], height=0.55)
-        ax.set_title(f"{year}년", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
-        ax.set_xlim(0, 50)
-        
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('#cccccc')
-        ax.spines['bottom'].set_color('#cccccc')
-        ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
-        ax.set_axisbelow(True)
-        ax.tick_params(axis='both', labelsize=9, colors='#555555')
-       
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(width + 1.5, bar.get_y() + bar.get_height()/2, f'{width:.1f}%', 
-                    va='center', ha='left', fontsize=9, fontweight='semibold', color='#444444')
-            
-    plt.tight_layout()
-    st.pyplot(fig)
-    
-    # 🚨 [교정 완료] with col_left 내부로 올바르게 들여쓰기(공백 4칸 추가)를 맞춰 깨짐 현상을 해결했습니다.
     with st.expander("💻 사용한 SQL"):
         st.code("""
 WITH Ranked_Shopping_Subcategory AS (
@@ -436,33 +453,77 @@ ORDER BY
 with col_right:
     st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">🇰🇷 전국 소비 순위</div>', unsafe_allow_html=True)
     
-    fig, axes = plt.subplots(2, 1, figsize=(6, 3.8), facecolor='white')
-    years_kr = ["2023", "2024"]
-    colors_kr = ["#a2d149", "#8bc34a"]
-    
-    for i, year in enumerate(years_kr):
-        df_year = 전국_data[전국_data["연도"] == year].sort_values(by="비율", ascending=True)
-        ax = axes[i]
-        
-        bars = ax.barh(df_year["카테고리"], df_year["비율"], color=colors_kr[i], height=0.6)
-        ax.set_title(f"{year}년", fontsize=11, fontweight="bold", loc="left", color="#333333", pad=5)
-        ax.set_xlim(0, 950)
-        
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('#cccccc')
-        ax.spines['bottom'].set_color('#cccccc')
-        ax.xaxis.grid(True, linestyle='--', alpha=0.4, color='#e0e0e0')
-        ax.set_axisbelow(True)
-        ax.tick_params(axis='both', labelsize=9, colors='#555555')
-        
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(width + 25, bar.get_y() + bar.get_height()/2, f'{width:,.1f}', 
-                    va='center', ha='left', fontsize=9, fontweight='semibold', color='#444444')
-            
-    plt.tight_layout()
-    st.pyplot(fig)
+    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (전국)
+    st.markdown(
+        """
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 4px; text-align: left;">2023년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #a2d149; width: 30.4%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">288.9</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #a2d149; width: 46.2%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">439.1</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #a2d149; width: 47.7%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">453.3</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">국제 교통비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #a2d149; width: 78.4%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">745.2</div>
+                </div>
+            </div>
+            <hr style="margin: 4px 0; border: none; border-top: 1px dashed #dddddd;">
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 4px; text-align: left;">2024년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #8bc34a; width: 27.2%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">258.6</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #8bc34a; width: 39.7%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">377.8</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #8bc34a; width: 46.2%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">439.2</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">국제 교통비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #8bc34a; width: 65.0%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">617.7</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     with st.expander("💻 사용한 SQL"):
         st.code("""WITH Yearly_Amount_2023 AS (
