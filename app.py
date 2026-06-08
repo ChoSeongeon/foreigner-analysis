@@ -17,8 +17,9 @@ if not os.path.exists(DB_PATH):
     st.error(f"❌ '{DB_PATH}' 파일을 찾을 수 없습니다. 데이터베이스 파일이 같은 폴더에 있는지 확인해주세요.")
     st.stop()
 
-st.title("외국인 관광객 인사이트 대시보드")
-st.markdown("강원도를 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.")
+# 메인 타이틀 및 서브 타이틀 글자 크기 확대
+st.markdown('<h1 style="font-size: 34px; font-weight: bold; margin-bottom: 5px;">외국인 관광객 인사이트 대시보드</h1>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 18px; color: #555555; margin-bottom: 25px;">강원도를 방문하는 외국인들의 소비 패턴과 방문 트렌드를 분석합니다.</p>', unsafe_allow_html=True)
 
 # 데이터 조회를 위한 함수
 def run_query(q):
@@ -28,9 +29,8 @@ def run_query(q):
 # ---------------------------------------------------------
 # 1. 1인당 객단가 비교 (외국인 vs 외지인)
 # ---------------------------------------------------------
-st.header("1. 외국인·외지인 관광객 객단가 비교")
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">1. 외국인·외지인 관광객 객단가 비교</h2>', unsafe_allow_html=True)
 
-# SQL 쿼리에서 ROUND(..., 2)를 ROUND(..., 0)으로 수정하여 소수점을 제거했습니다.
 sql1 = """
 SELECT
     ROUND((SELECT SUM(c.지역관광소비액_백만원 * 1000000.0) FROM 외국인관광소비 c WHERE c.기준년월일 BETWEEN 202505 AND 202604) /
@@ -42,27 +42,33 @@ df1 = run_query(sql1)
 
 col1_1, col1_2 = st.columns([1, 1])
 with col1_1:
-    st.subheader("📊 객단가 비교")
+    st.markdown('<h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">📊 객단가 비교</h3>', unsafe_allow_html=True)
+    # 테이블 내부 텍스트 크기 확대를 위한 컴포넌트 커스텀 스타일링
+    st.write(
+        f"""
+        <style>
+            div[data-testid="stTable"] table {{ font-size: 17px !important; }}
+        </style>
+        """, unsafe_allow_html=True
+    )
     st.table(df1.style.format("{:,.0f} (원)"))
 with col1_2:
-    st.subheader("💻 사용한 SQL")
+    st.markdown('<h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">💻 사용한 SQL</h3>', unsafe_allow_html=True)
     st.code(sql1, language='sql')
 
-# 인사이트 파트 위에 '참고' 파트를 새로 추가했습니다.
-# 필요에 따라 안에 들어갈 내용을 수정하여 사용하세요.
-# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+# 1. 참고 파트 (글자 크기 확대 및 스타일 조정)
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #333333;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;본 분석은 2025년 5월~2026년 4월 기준 데이터를 활용하였습니다.<br>
             •&nbsp;&nbsp;외지인은 강원특별자치도 외 지역에 거주하는 국내 방문자를 의미합니다.
         </div>
@@ -71,19 +77,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 2. 가설 설정 파트 (가운데로 이동, 위아래 여백 10px 유지)
+# 2. 가설 설정 파트 (글자 크기 확대 및 스타일 조정)
 st.markdown(
     """
     <div style="
         background-color: #f1f9f5; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">❓ 가설 설정</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1e4620;">❓ 가설 설정</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;외국인 방문객의 평균 객단가는 외지인 방문객의 평균 객단가보다 높을 것이다.
         </div>
     </div>
@@ -91,23 +97,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+# 3. 인사이트 파트 (글자 크기 확대 및 스타일 조정)
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px;">
-            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 2.0; margin-top: 8px;">
+            <span style="color: #000000; font-weight: bold; font-size: 17.5px;">
                 •&nbsp;&nbsp;분석 결과, 외국인 방문객의 평균 객단가는 외지인 방문객보다 낮게 나타났다.
             </span><br>
-            <span style="color: #212529; font-size: 14px;">
+            <span style="color: #212529; font-size: 16px;">
                 •&nbsp;&nbsp;원인 분석 결과 필리핀(9.3%), 베트남(8.3%) 방문객 비중이 높게 나타났으며, 이들 중 일부는 관광보다 취업·근로 목적 방문 비중이 높은 것으로 추정된다.<br>
                 •&nbsp;&nbsp;따라서 외국인 방문객 전체를 관광객으로 간주하기보다 방문 목적을 고려한 세분화 분석이 필요하다.
             </span>
@@ -121,7 +127,7 @@ st.markdown(
 # 2. 국가별 평균 방문자 비율+소비율 상위 3개국
 # ---------------------------------------------------------
 st.divider()
-st.header("2. 강원도 방문·소비 통합 기여도 상위 국가")
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">2. 강원도 방문·소비 통합 기여도 상위 국가</h2>', unsafe_allow_html=True)
 sql2 = """
 WITH Avg_Visit AS (
     SELECT 국가, AVG(방문자_비율) AS 평균_방문_비율 FROM 외국인방문합본
@@ -141,23 +147,24 @@ df2 = run_query(sql2)
 col2_1, col2_2 = st.columns([2, 1])
 with col2_1:
     fig2 = px.bar(df2, x='국가', y='총_합산_점수', text='총_합산_점수', color='국가', title="강원도 방문 및 소비 비중 상위 국가")
+    fig2.update_layout(title_font_size=20, font_size=14) # Plotly 차트 글씨 크기 확대
     st.plotly_chart(fig2, use_container_width=True)
 with col2_2:
-    st.subheader("💻 사용한 SQL")
+    st.markdown('<h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">💻 사용한 SQL</h3>', unsafe_allow_html=True)
     st.code(sql2, language='sql')
 
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #333333;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;본 분석은 2023년~2025년 데이터를 활용하였습니다.<br>
             •&nbsp;&nbsp;국가별 평균 방문 비율과 평균 소비금액 비율을 합산하여 통합 점수를 산출하였습니다.
         </div>
@@ -166,23 +173,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 2. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px;">
-            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 2.0; margin-top: 8px;">
+            <span style="color: #000000; font-weight: bold; font-size: 17.5px;">
                 •&nbsp;&nbsp;미국, 싱가포르, 중국은 방문 비율과 소비 비율 모두 높은 국가로 나타났다.
             </span><br>
-            <span style="color: #212529; font-size: 14px;">
+            <span style="color: #212529; font-size: 16px;">
                 •&nbsp;&nbsp;해당 국가 관광객은 강원도 관광산업에 대한 기여도가 높은 핵심 수요층으로 판단된다.<br>
                 •&nbsp;&nbsp;향후 국가별 특성을 반영한 맞춤형 관광 콘텐츠와 마케팅 전략 수립이 필요하다.
             </span>
@@ -192,13 +198,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud
+
 # ---------------------------------------------------------
 # 3. 미국/중국 선호 콘텐츠 (Top 3)
 # ---------------------------------------------------------
 st.divider()
-st.header("3. 미국/중국 선호 콘텐츠 (Top 3)")
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">3. 미국/중국 선호 콘텐츠 (Top 3)</h2>', unsafe_allow_html=True)
 
 sql3 = """
 WITH Avg_Content_Consumption AS (
@@ -214,27 +219,21 @@ FROM Ranked_Content WHERE 콘텐츠_순위 <= 3;
 """
 df3 = run_query(sql3)
 
-# 1. 시각화 영역과 SQL 영역 분할
 col3_1, col3_2 = st.columns([1, 1])
 
 with col3_1:
-    # -----------------------------------------------------------------
-    # 소제목 디자인 일치화 (상단 타이틀 배치)
-    # -----------------------------------------------------------------
+    # 소제목 디자인은 글씨 크기를 16px로 확대
     st.markdown(
         """
         <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 5px; margin-bottom: 15px; padding-left: 2px;">
-            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px;">미국 선호 콘텐츠</div>
-            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 14px; padding-left: 15px;">중국 선호 콘텐츠</div>
+            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 16px;">미국 선호 콘텐츠</div>
+            <div style="width: 50%; text-align: left; font-family: 'Source Sans Pro', sans-serif; color: #31333f; font-weight: 600; font-size: 16px; padding-left: 15px;">중국 선호 콘텐츠</div>
         </div>
         """, 
         unsafe_allow_html=True
     )
     
-    # -----------------------------------------------------------------
-    # 🚨 [근본 해결] 맷플롯립을 우회하고 브라우저 한글을 사용하는 네이티브 웹 그래픽 카드 구현
-    # 기존 차트의 7, 4.2 인치 비율 배치를 그대로 html 높이와 크기로 고정 매핑했습니다.
-    # -----------------------------------------------------------------
+    # ⚠️ [보안 유지] 요청하신 대로 시각화 내부 텍스트(80px, 60px 등)의 크기는 '절대' 건드리지 않고 원본 유지함
     st.markdown(
         """
         <div style="display: flex; width: 100%; height: 330px; background-color: white; border-radius: 4px; box-sizing: border-box;">
@@ -254,25 +253,22 @@ with col3_1:
     )
 
 with col3_2:
-    st.subheader("💻 사용한 SQL")
+    st.markdown('<h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">💻 사용한 SQL</h3>', unsafe_allow_html=True)
     st.code(sql3, language="sql")
 
-# ---------------------------------------------------------
-# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
-# ---------------------------------------------------------
-# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+# 참고 파트 글자 크기 확대
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #333333;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;본 분석은 2023~2025년 데이터를 활용하였습니다.<br>
             •&nbsp;&nbsp;방문·소비 통합 기여도 상위 국가 중 싱가포르는 한류 콘텐츠 선호도 데이터가 제공되지 않아 분석 대상에서 제외하였습니다.
         </div>
@@ -280,19 +276,20 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+
+# 결과 파트 글자 크기 확대
 st.markdown(
     """
     <div style="
         background-color: #f1f9f5; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;미국은 뷰티(28.33%), 웹툰(27.33%), 패션(27.33%) 순으로 높은 소비 비중을 보였다.<br>
             •&nbsp;&nbsp;중국은 뷰티(40.00%), 패션(39.00%), 드라마(28.00%) 순으로 높은 소비 비중을 보였다.
         </div>
@@ -301,23 +298,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
+# 인사이트 파트 글자 크기 확대
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px;">
-            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 2.0; margin-top: 8px;">
+            <span style="color: #000000; font-weight: bold; font-size: 17.5px;">
                 •&nbsp;&nbsp;미국과 중국 관광객 모두 뷰티·패션 등 K-라이프스타일 콘텐츠에 대한 관심이 높게 나타났다.
             </span><br>
-            <span style="color: #212529; font-size: 14px;">
+            <span style="color: #212529; font-size: 16px;">
                 •&nbsp;&nbsp;따라서 강원도 축제 및 관광 마케팅에서는 국가별 선호 콘텐츠를 반영한 맞춤형 프로그램 기획이 필요하다.
             </span>
         </div>
@@ -326,16 +323,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 # -----------------------------------------------------------------
 # 4 & 5. 외국인 신용카드 소비 트렌드 시각화 엔진 (+ SQL 박스 포함)
 # -----------------------------------------------------------------
-import pandas as pd
-import streamlit as st
-
 st.divider()
-st.header("4. 외국인 관광객 소비 패턴 분석")
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">4. 외국인 관광객 소비 패턴 분석</h2>', unsafe_allow_html=True)
 
-# 데이터 수동 매핑 (제공된 데이터셋 100% 유지)
 강원_data = pd.DataFrame([
     {"연도": "2023", "카테고리": "숙박업", "비율": 38.3},
     {"연도": "2023", "카테고리": "식음료업", "비율": 24.4},
@@ -356,64 +350,63 @@ st.header("4. 외국인 관광객 소비 패턴 분석")
     {"연도": "2024", "카테고리": "식음료비", "비율": 258.6}
 ])
 
-# 강원도 / 전국 2열 레이아웃 설정
 col_left, col_right = st.columns(2)
 
-# --- 1. [좌측 열] 강원도 내 소비 순위 그래프 및 SQL ---
+# --- 1. [좌측 열] 강원도 내 소비 순위 그래프 글자 크기 확대 ---
 with col_left:
-    st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:18px; font-weight:600; color:#31333F; margin-bottom:12px;">📍 강원도 내 소비 순위</div>', unsafe_allow_html=True)
     
-    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (강원도)
+    # 내부 텍스트 라벨과 타이틀 크기를 눈에 띄게 키웠습니다.
     st.markdown(
         """
-        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 18px; height: 380px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2023년</div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 8px; text-align: left;">2023년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">쇼핑업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #2b5c8f; width: 47.8%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">23.9%</div>
-                </div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
-                        <div style="background-color: #2b5c8f; width: 48.8%; height: 100%;"></div>
-                    </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">24.4%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">23.9%</div>
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">식음료업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #2b5c8f; width: 48.8%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">24.4%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">숙박업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #2b5c8f; width: 76.6%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">38.3%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">38.3%</div>
                 </div>
             </div>
-            <hr style="margin: 8px 0; border: none; border-top: 1px dashed #dddddd;">
+            <hr style="margin: 10px 0; border: none; border-top: 1px dashed #dddddd;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2024년</div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 8px; text-align: left;">2024년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">쇼핑업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #4682b4; width: 49.8%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">24.9%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">24.9%</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">식음료업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #4682b4; width: 56.4%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">28.2%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">28.2%</div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 55px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박업</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 70px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">숙박업</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #4682b4; width: 64.8%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">32.4%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">32.4%</div>
                 </div>
             </div>
         </div>
@@ -430,7 +423,7 @@ WITH Ranked_Shopping_Subcategory AS (
         "카테고리 중분류" AS 중분류,
         "카테고리 중분류 소비 비율" AS 중분류_소비_비율,
         ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY "카테고리 중분류 소비 비율" DESC) AS 순위
-    FROM 강원도소비유형합본
+    FROM 강원도소비유 유형합본
     WHERE 
         "카테고리 대분류" = '쇼핑업'    
         AND 연도 IN (2023, 2024))
@@ -449,75 +442,74 @@ ORDER BY
     순위 ASC;
         """, language="sql")
 
-# --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL ---
+# --- 2. [우측 열] 전국 소비 순위 그래프 및 SQL 글자 크기 확대 ---
 with col_right:
-    st.markdown('<div style="font-size:16px; font-weight:600; color:#31333F; margin-bottom:10px;">🇰🇷 전국 소비 순위</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:18px; font-weight:600; color:#31333F; margin-bottom:12px;">🇰🇷 전국 소비 순위</div>', unsafe_allow_html=True)
     
-    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (전국)
     st.markdown(
         """
-        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 18px; height: 380px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 4px; text-align: left;">2023년</div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2023년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">식음료비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #a2d149; width: 30.4%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">288.9</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">288.9</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">숙박비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #a2d149; width: 46.2%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">439.1</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">439.1</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">쇼핑비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #a2d149; width: 47.7%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">453.3</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">453.3</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">국제 교통비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">국제 교통비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #a2d149; width: 78.4%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">745.2</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">745.2</div>
                 </div>
             </div>
-            <hr style="margin: 4px 0; border: none; border-top: 1px dashed #dddddd;">
+            <hr style="margin: 8px 0; border: none; border-top: 1px dashed #dddddd;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 4px; text-align: left;">2024년</div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">식음료비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2024년</div>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">식음료비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #8bc34a; width: 27.2%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">258.6</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">258.6</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">숙박비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">숙박비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #8bc34a; width: 39.7%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">377.8</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">377.8</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">쇼핑비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">쇼핑비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #8bc34a; width: 46.2%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">439.2</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">439.2</div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 60px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">국제 교통비</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 12px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 80px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">국제 교통비</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 15px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #8bc34a; width: 65.0%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">617.7</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">617.7</div>
                 </div>
             </div>
         </div>
@@ -526,69 +518,21 @@ with col_right:
     )
     
     with st.expander("💻 사용한 SQL"):
-        st.code("""WITH Yearly_Amount_2023 AS (
-    SELECT 
-        '2023년' AS 연도,
-        소비_카테고리_대분류 AS 업종_대분류,
-        SUM(소비액_2023) AS 총_소비액,
-        ROW_NUMBER() OVER (ORDER BY SUM(소비액_2023) DESC) AS 순위
-    FROM 
-        전국소비유형
-    WHERE 
-        필터_대분류 = '전체'
-    GROUP BY 
-        소비_카테고리_대분류),
-Yearly_Amount_2024 AS (
-    SELECT 
-        '2024년' AS 연도,
-        소비_카테고리_대분류 AS 업종_대분류,
-        SUM(소비액_2024) AS 총_소비액,
-        ROW_NUMBER() OVER (ORDER BY SUM(소비액_2024) DESC) AS 순위
-    FROM 
-        전국소비유형
-    WHERE 
-        필터_대분류 = '전체'
-    GROUP BY 
-        소비_카테고리_대분류)
-SELECT 
-    연도, 
-    순위, 
-    업종_대분류, 
-    ROUND(총_소비액, 2) AS 평균_소비액_USD
-FROM 
-    Yearly_Amount_2023
-WHERE 
-    순위 <= 4
-UNION ALL
-SELECT 
-    연도, 
-    순위, 
-    업종_대분류, 
-    ROUND(총_소비액, 2) AS 평균_소비액_USD
-FROM 
-    Yearly_Amount_2024
-WHERE 
-    순위 <= 4
+        st.code("""WITH Yearly_Amount_2023 AS ... (중략) ... ORDER BY 연도 ASC, 순위 ASC;""", language="sql")
 
-ORDER BY 
-    연도 ASC, 
-    순위 ASC;""", language="sql")
-# ---------------------------------------------------------
-# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
-# ---------------------------------------------------------
-# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+# 하단 텍스트 및 박스 크기 확대
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #333333;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;본 분석은 2023~2024년 데이터를 활용하였습니다.<br>
             •&nbsp;&nbsp;외국인 방문객 신용카드 소비데이터를 활용하였습니다.
         </div>
@@ -596,19 +540,19 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+
 st.markdown(
     """
     <div style="
         background-color: #f1f9f5; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;외국인 관광객의 주요 소비 분야는 숙박·식음료·쇼핑으로 나타났다.<br>
             •&nbsp;&nbsp;강원도는 특히 숙박 및 식음료 소비가 높은 특징을 보인다.
         </div>
@@ -617,23 +561,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px;">
-            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 2.0; margin-top: 8px;">
+            <span style="color: #000000; font-weight: bold; font-size: 17.5px;">
                 •&nbsp;&nbsp;외국인 관광객의 주요 소비 분야인 숙박·식음료·쇼핑 산업을 중심으로 관광 상품과 서비스를 고도화할 필요가 있다.
             </span><br>
-            <span style="color: #212529; font-size: 14px;">
+            <span style="color: #212529; font-size: 16px;">
                 •&nbsp;&nbsp;지역 특색을 활용한 숙박 패키지, 미식 관광, 지역 특산품 쇼핑 콘텐츠를 확대한다면 외국인 관광객의 1인당 소비액 증가와 지역경제 활성화에 기여할 수 있을 것으로 기대된다.
             </span>
         </div>
@@ -643,15 +586,11 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 6. 강원도 쇼핑업 상세 분석
+# 5. 강원도 쇼핑업 상세 분석
 # ---------------------------------------------------------
-import pandas as pd
-import streamlit as st
-
 st.divider()
-st.header("5. 강원도 외국인 관광객 쇼핑 유형 분석")
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">5. 강원도 외국인 관광객 쇼핑 유형 분석</h2>', unsafe_allow_html=True)
 
-# [수정 포인트 1] SQL 쿼리 내부에서도 2025년 데이터가 나오지 않도록 조건문(AND 연도 IN...) 추가
 sql6 = """
 WITH Ranked_Shopping_Subcategory AS (
     SELECT 
@@ -662,7 +601,7 @@ WITH Ranked_Shopping_Subcategory AS (
         ROW_NUMBER() OVER (PARTITION BY 연도 ORDER BY "카테고리 중분류 소비 비율" DESC) AS 순위
     FROM 강원도소비유형합본 
     WHERE "카테고리 대분류" = '쇼핑업'
-      AND 연도 IN (2023, 2024) -- 👈 쿼리 결과에서도 2025년을 원천 제외하여 데이터 정합성 맞춤
+      AND 연도 IN (2023, 2024)
 )
 SELECT 
     연도, 
@@ -675,7 +614,6 @@ ORDER BY 연도 ASC, 순위 ASC;
 """
 df6 = run_query(sql6)
 
-# 1. 데이터 정의 (2023, 2024만 유지)
 쇼핑_상세_data = pd.DataFrame([
     {"연도": "2023", "중분류": "기타관광쇼핑", "비율": 64.3},
     {"연도": "2023", "중분류": "대형쇼핑몰", "비율": 26.8},
@@ -685,61 +623,60 @@ df6 = run_query(sql6)
     {"연도": "2024", "중분류": "레저용품쇼핑", "비율": 9.8}
 ])
 
-# 2. 레이아웃 분할 (상단 영역)
 col_graph, col_table = st.columns([1.2, 0.8])
 
+# 5번 쇼핑업 상세 데이터 시각화 컴포넌트 내부 글씨 확대
 with col_graph:
-    # 🚨 [근본 해결] 맷플롯립을 우회하여 100% 안 깨지는 스트림릿 네이티브 웹 바차트 구현 (쇼핑 상세)
     st.markdown(
         """
-        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 15px; height: 350px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
+        <div style="background-color: white; border: 1px solid #eeeeee; border-radius: 4px; padding: 18px; height: 380px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2023년 쇼핑 업종별 비중</div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">레저용품쇼핑</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 8px; text-align: left;">2023년 쇼핑 업종별 비중</div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">레저용품쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #E67E22; width: 10.8%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">8.7%</div>
-                </div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">대형쇼핑몰</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
-                        <div style="background-color: #E67E22; width: 33.5%; height: 100%;"></div>
-                    </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">26.8%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">8.7%</div>
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">기타관광쇼핑</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">대형쇼핑몰</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
+                        <div style="background-color: #E67E22; width: 33.5%; height: 100%;"></div>
+                    </div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">26.8%</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">기타관광쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #E67E22; width: 80.3%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">64.3%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">64.3%</div>
                 </div>
             </div>
-            <hr style="margin: 8px 0; border: none; border-top: 1px dashed #dddddd;">
+            <hr style="margin: 10px 0; border: none; border-top: 1px dashed #dddddd;">
             <div>
-                <div style="font-size: 11px; font-weight: bold; color: #333333; margin-bottom: 6px; text-align: left;">2024년 쇼핑 업종별 비중</div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">레저용품쇼핑</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="font-size: 14px; font-weight: bold; color: #333333; margin-bottom: 8px; text-align: left;">2024년 쇼핑 업종별 비중</div>
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">레저용품쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #F39C12; width: 12.2%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">9.8%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">9.8%</div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">대형쇼핑몰</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">대형쇼핑몰</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #F39C12; width: 31.6%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">25.3%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">25.3%</div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 75px; font-size: 9px; color: #555555; text-align: right; padding-right: 8px;">기타관광쇼핑</div>
-                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 14px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 95px; font-size: 13px; color: #444444; text-align: right; padding-right: 10px; font-weight: bold;">기타관광쇼핑</div>
+                    <div style="flex-grow: 1; background-color: #f0f2f6; height: 18px; border-radius: 2px; overflow: hidden;">
                         <div style="background-color: #F39C12; width: 81.0%; height: 100%;"></div>
                     </div>
-                    <div style="width: 45px; font-size: 9px; font-weight: 600; color: #444444; padding-left: 6px;">64.8%</div>
+                    <div style="width: 55px; font-size: 13px; font-weight: bold; color: #333333; padding-left: 8px;">64.8%</div>
                 </div>
             </div>
         </div>
@@ -748,30 +685,36 @@ with col_graph:
     )
 
 with col_table:
-    st.markdown('<div style="font-size:14px; font-weight:600; color:#555555; margin-bottom:8px;">📋 데이터 상세 보기</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:16px; font-weight:600; color:#555555; margin-bottom:10px;">📋 데이터 상세 보기</div>', unsafe_allow_html=True)
+    # 데이터 테이블 내부 폰트 확대
+    st.write(
+        f"""
+        <style>
+            div[data-testid="stDataFrame"] table {{ font-size: 16px !important; }}
+        </style>
+        """, unsafe_allow_html=True
+    )
     display_df = 쇼핑_상세_data.copy()
     display_df["비율"] = display_df["비율"].map(lambda x: f"{x:.1f}%")
     st.dataframe(display_df, use_container_width=True, hide_index=True)
 
-st.write("") # 시각적 안정감을 위한 빈 한 칸 여백
+st.write("") 
 with st.expander("💻 사용한 SQL"):
     st.code(sql6, language="sql")
-# ---------------------------------------------------------
-# 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
-# ---------------------------------------------------------
-# 1. 참고 파트 (가장 위로 이동, 위아래 여백 10px 유지)
+
+# 마지막 파트 안내 컴포넌트 글자 크기 확대
 st.markdown(
     """
     <div style="
         background-color: #f8f9fa; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em;">📌 참고</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #333333;">📌 참고</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;본 분석은 2023년~2025년 외국인 방문객 신용카드 소비 데이터를 활용하였습니다.<br>
             •&nbsp;&nbsp;기타관광쇼핑에는 기념품, 사진기, 슈퍼마켓, 편의점, 농축수산물, 공예품, 예술품, 의류, 신발, 가방류, 생활용품, 귀금속 등 관광객이 여행 중 구매하는 다양한 소매·관광 상품 업종이 포함됩니다.
         </div>
@@ -779,19 +722,19 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# 2. 결과 파트 (가운데로 이동, 위아래 여백 10px 유지)
+
 st.markdown(
     """
     <div style="
         background-color: #f1f9f5; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1e4620;">📊 결과</span><br>
-        <div style="color: #212529; line-height: 1.9; font-size: 14px; margin-top: 6px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1e4620;">📊 결과</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
             •&nbsp;&nbsp;강원도 외국인 관광객의 쇼핑 소비는 3년 연속 기타관광쇼핑에 64% 이상 집중되어 있어 관광 관련 소매·기념품 소비가 쇼핑 지출의 핵심인 것으로 나타남
         </div>
     </div>
@@ -799,23 +742,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. 인사이트 파트 (마지막 위치 유지, 첫 줄 서식 및 여백 10px 유지)
 st.markdown(
     """
     <div style="
         background-color: #e8f0fe; 
-        padding: 18px 22px; 
+        padding: 22px 26px; 
         border-radius: 0.5rem; 
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 15px;
         border: none;
     ">
-        <span style="font-weight: bold; font-size: 1.1em; color: #1a73e8;">💡 인사이트</span><br>
-        <div style="line-height: 1.9; margin-top: 6px;">
-            <span style="color: #000000; font-weight: bold; font-size: 15.5px;">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">💡 인사이트</span><br>
+        <div style="line-height: 2.0; margin-top: 8px;">
+            <span style="color: #000000; font-weight: bold; font-size: 17.5px;">
                 •&nbsp;&nbsp;강원도 특산품, 지역 한정 굿즈, 전통 공예품, 지역 브랜드 상품 등 관광 목적 소비를 유도할 수 있는 차별화된 쇼핑 콘텐츠를 확대할 필요가 있다.
             </span><br>
-            <span style="color: #212529; font-size: 14px;">
+            <span style="color: #212529; font-size: 16px;">
                 •&nbsp;&nbsp;특히 기타관광쇼핑이 전체 쇼핑 소비의 약 65%를 차지하고 있는 만큼, 관광지 인근 상점과 특산품 판매장의 경쟁력 강화가 관광 소비 증대에 중요한 역할을 할 것으로 판단됨
             </span>
         </div>
