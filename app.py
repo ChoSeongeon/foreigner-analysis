@@ -233,20 +233,22 @@ with col3_1:
     )
     
     # -----------------------------------------------------------------
-    # 정밀 시각화 엔진 (잘림 현상 교정 완료)
+    # 정밀 시각화 엔진 (맥북 폰트 잘림 및 깨짐 교정 완료)
     # -----------------------------------------------------------------
     import matplotlib.pyplot as plt
     import matplotlib.font_manager as fm
     import platform
     
-    # OS별 기본 한글 폰트 자동 지정
+    # 🚨 [맥북 교정] 도화지(subplots)를 만들기 전에 폰트 설정을 최우선으로 실행합니다.
     if platform.system() == 'Windows':
         plt.rc('font', family='Malgun Gothic')
-    elif platform.system() == 'Darwin':  # 맥
+    elif platform.system() == 'Darwin':  # 맥북 (macOS)
         plt.rc('font', family='AppleGothic')
     else:  # 리눅스/스트림릿 클라우드 서버 환경
         plt.rc('font', family='NanumGothic' if 'NanumGothic' in [f.name for f in fm.fontManager.ttflist] else 'sans-serif')
     
+    plt.rcParams['axes.unicode_minus'] = False
+
     # 도화지 크기 설정 (7, 4.2 규격 유지)
     fig, axes = plt.subplots(1, 2, figsize=(7, 4.2), facecolor='white')
     
@@ -254,12 +256,10 @@ with col3_1:
     ax_us = axes[0]
     ax_us.set_facecolor('white')
     
-    # 1위 뷰티를 가장 상단에 큼직하게 배치
-    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='black', color='#1e5096', ha='center', va='center')
-    
-    # [수정 완료] 문자열 잘림 현상을 해결하고 웹툰과 패션을 위아래로 깔끔하게 떨어뜨렸습니다.
-    ax_us.text(0.5, 0.44, '웹툰', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
-    ax_us.text(0.5, 0.15, '패션', fontsize=82, weight='black', color='#64a0dc', ha='center', va='center')
+    # 🚨 [맥북 교정] 맥북 폰트(AppleGothic)와 충돌하는 weight='black'을 weight='bold'로 안전하게 수정
+    ax_us.text(0.5, 0.76, '뷰티', fontsize=110, weight='bold', color='#1e5096', ha='center', va='center')
+    ax_us.text(0.5, 0.44, '웹툰', fontsize=82, weight='bold', color='#64a0dc', ha='center', va='center')
+    ax_us.text(0.5, 0.15, '패션', fontsize=82, weight='bold', color='#64a0dc', ha='center', va='center')
     
     ax_us.axis('off')
     ax_us.set_xlim(0.05, 0.95)
@@ -269,9 +269,10 @@ with col3_1:
     ax_cn = axes[1]
     ax_cn.set_facecolor('white')
     
-    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='black', color='#8b0000', ha='center', va='center')
-    ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='black', color='#e03a3a', ha='center', va='center')
-    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='black', color='#f39292', ha='center', va='center')
+    # 🚨 [맥북 교정] 중국 텍스트 영역도 동일하게 weight='bold'로 수정하여 깨짐 차단
+    ax_cn.text(0.5, 0.76, '뷰티', fontsize=115, weight='bold', color='#8b0000', ha='center', va='center')
+    ax_cn.text(0.5, 0.44, '패션', fontsize=102, weight='bold', color='#e03a3a', ha='center', va='center')
+    ax_cn.text(0.5, 0.12, '드라마', fontsize=65, weight='bold', color='#f39292', ha='center', va='center')
     
     ax_cn.axis('off')
     ax_cn.set_xlim(0.05, 0.95)
@@ -288,7 +289,6 @@ with col3_2:
     # 🚨 글자 깨짐 및 괄호 누수 오작동 구간 마크다운 정상화 완료
     st.subheader("💻 사용한 SQL")
     st.code(sql3, language="sql")
-
 # ---------------------------------------------------------
 # 기존 하단 컴포넌트 간격 유지용 마진 박스 및 인사이트
 # ---------------------------------------------------------
