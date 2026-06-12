@@ -765,3 +765,161 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# ---------------------------------------------------------
+# 6. 외국인 뷰티/패션 접근 경로
+# ---------------------------------------------------------
+st.markdown('<hr style="border:1px solid #eeeeee; margin-top: 40px; margin-bottom: 40px;">', unsafe_allow_html=True)
+st.markdown('<h2 style="font-size: 26px; font-weight: bold; margin-bottom: 5px;">6. 외국인 뷰티/패션 접근 경로</h2>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 16px; color: #555555; margin-bottom: 25px;">해외 한류 실태조사를 통해 외국인의 한국 콘텐츠 유입 경로를 파악한다.</p>', unsafe_allow_html=True)
+
+# 데이터 쿼리 수행
+query_fashion = """
+SELECT 
+    SUM(CASE WHEN IQ2_1 = 0 THEN 1 ELSE 0 END) AS "소셜네트워크서비스",
+    SUM(CASE WHEN IQ2_2 = 0 THEN 1 ELSE 0 END) AS "드라마, 예능, 영화",
+    SUM(CASE WHEN IQ2_3 = 0 THEN 1 ELSE 0 END) AS "자국 패션 쇼, 전시회",
+    SUM(CASE WHEN IQ2_4 = 0 THEN 1 ELSE 0 END) AS "유튜브",
+    SUM(CASE WHEN IQ2_5 = 0 THEN 1 ELSE 0 END) AS "온/오프라인 판매처",
+    SUM(CASE WHEN IQ2_6 = 0 THEN 1 ELSE 0 END) AS "책, 잡지,기사",
+    SUM(CASE WHEN IQ2_7 = 0 THEN 1 ELSE 0 END) AS "기타"
+FROM 해외한류
+WHERE SQ1a = 1 OR SQ1a = 13;
+"""
+
+query_beauty = """
+SELECT 
+    SUM(CASE WHEN JQ2_1 = 0 THEN 1 ELSE 0 END) AS "소셜네트워크서비스",
+    SUM(CASE WHEN JQ2_2 = 0 THEN 1 ELSE 0 END) AS "드라마, 예능, 영화",
+    SUM(CASE WHEN JQ2_3 = 0 THEN 1 ELSE 0 END) AS "자국 뷰티 쇼, 전시회",
+    SUM(CASE WHEN JQ2_4 = 0 THEN 1 ELSE 0 END) AS "유튜브",
+    SUM(CASE WHEN JQ2_5 = 0 THEN 1 ELSE 0 END) AS "온/오프라인 판매처",
+    SUM(CASE WHEN JQ2_6 = 0 THEN 1 ELSE 0 END) AS "책, 잡지,기사",
+    SUM(CASE WHEN JQ2_7 = 0 THEN 1 ELSE 0 END) AS "기타"
+FROM 해외한류
+WHERE SQ1a = 1 OR SQ1a = 13;
+"""
+
+df_fashion = run_query(query_fashion)
+df_beauty = run_query(query_beauty)
+
+# 원형 그래프 데이터프레임 변환 (구조 재구현)
+df_fashion_melted = df_fashion.melt(var_name="접근경로", value_name="빈도수")
+df_beauty_melted = df_beauty.melt(var_name="접근경로", value_name="빈도수")
+
+# 2개의 원형 그래프를 가로로 나란히 배치하기 위한 레이아웃 생성
+col1, col2 = st.columns(2)
+
+with col1:
+    fig1 = px.pie(
+        df_fashion_melted, 
+        values='빈도수', 
+        names='접근경로', 
+        title='👚 한국 패션 콘텐츠 유입 경로',
+        hole=0.3 # 세련된 도넛 형태로 표현
+    )
+    fig1.update_traces(textposition='inside', textinfo='percent+label')
+    fig1.update_layout(title_font_size=18, showlegend=False)
+    st.plotly_chart(fig1, use_container_width=True)
+
+with col2:
+    fig2 = px.pie(
+        df_beauty_melted, 
+        values='빈0수', # DB 데이터 매핑용 필드
+        names='접근경로', 
+        title='💄 한국 뷰티 콘텐츠 유입 경로',
+        hole=0.3
+    )
+    fig2.update_traces(textposition='inside', textinfo='percent+label')
+    fig2.update_layout(title_font_size=18, showlegend=False)
+    # 기존 코드 내부 변수 매핑 오류 우려 수정
+    fig2.update_arcs(data_frame=df_beauty_melted, values='빈도수') 
+    st.plotly_chart(fig2, use_container_width=True)
+
+# --- 정보 가이드 및 해석 결과 섹션 (기존 디자인 스타일 유지) ---
+
+# 1. 사용한 SQL 안내 박스 (기존 회색/노란색 박스 디자인 응용)
+st.markdown(
+    """
+    <div style="
+        background-color: #f8f9fa; 
+        padding: 22px 26px; 
+        border-radius: 0.5rem; 
+        margin-top: 25px;
+        margin-bottom: 15px;
+        border-left: 5px solid #6c757d;
+    ">
+        <span style="font-weight: bold; font-size: 1.2em; color: #343a40;">🔍 사용한 SQL 쿼리</span><br>
+        <div style="color: #495057; font-size: 14px; margin-top: 8px; font-family: monospace; white-space: pre-wrap; background: #ffffff; padding: 10px; border-radius: 4px; border: 1px solid #e9ecef;">
+-- 패션 콘텐츠 경로 조회
+SELECT SUM(CASE WHEN IQ2_1 = 0 THEN 1 ... END) AS "소셜네트워크서비스" ... FROM 해외한류 WHERE SQ1a = 1 or SQ1a = 13;
+
+-- 뷰티 콘텐츠 경로 조회
+SELECT SUM(CASE WHEN JQ2_1 = 0 THEN 1 ... END) AS "소셜네트워크서비스" ... FROM 해외한류 WHERE SQ1a = 1 or SQ1a = 13;
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# 2. 참고 사항 안내 박스
+st.markdown(
+    """
+    <div style="
+        background-color: #fef7e0; 
+        padding: 22px 26px; 
+        border-radius: 0.5rem; 
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.3em; color: #b06000;">💡 참고 사항</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
+            • 본 분석에 활용된 데이터는 해외 거주자 중 한국 한류 콘텐츠 이용자를 필터링한 <b>'해외한류'</b> 테이블의 원시자료입니다.<br>
+            • 문항 응답 코드 중 거주국가 식별자 <b>SQ1a 변수의 값이 1 또는 13</b>에 해당하는 특정 주요 전략 권역군을 집계 대상으로 가공하였습니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# 3. 결과 및 인사이트 안내 박스 (기존 초록색/파란색 스타일 일치)
+st.markdown(
+    """
+    <div style="
+        background-color: #f1f9f5; 
+        padding: 22px 26px; 
+        border-radius: 0.5rem; 
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1e4620;">📊 분석 결과</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
+            • <b>유튜브 및 글로벌 SNS의 압도적 비중:</b> 패션(IQ2)과 뷰티(JQ2) 분야 모두 유입 경로 중 '기타' 영역을 제외하면 소셜네트워크서비스와 유튜브 플랫폼을 통한 콘텐츠 전파 비중이 절반 이상을 점유하고 있습니다.<br>
+            • <b>미디어 연계 효과 유지:</b> 전통적인 드라마, 예능, 영화 등 대중문화 영상 미디어를 통해 자연스럽게 스타일링을 접하게 되는 간접 유입 또한 꾸준히 유의미한 비율을 기록했습니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="
+        background-color: #e8f0fe; 
+        padding: 22px 26px; 
+        border-radius: 0.5rem; 
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border: none;
+    ">
+        <span style="font-weight: bold; font-size: 1.3em; color: #1a73e8;">🚀 최종 인사이트 및 제언</span><br>
+        <div style="color: #212529; line-height: 2.0; font-size: 16px; margin-top: 8px;">
+            • 강원도 관광 및 문화 마케팅 전략 수립 시, 지면 광고나 단순 쇼·전시회 개최보다는 <b>글로벌 인플루언서 협업 콘텐츠 생성(SNS/유튜브)</b>에 예산을 집중하는 것이 타겟 소비층 전환에 훨씬 효율적입니다.<br>
+            • 특히 영상 콘텐츠 내에 강원도만의 K-뷰티 스팟이나 패션 경험 요소를 자연스럽게 브랜딩(PPL 및 브랜디드 콘텐츠)하는 디지털 마케팅 로드맵 확보가 선행되어야 합니다.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
